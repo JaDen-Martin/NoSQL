@@ -19,7 +19,11 @@ const client = new MongoClient(uri, {
 
 app.get('/', (req, res) => {
   res.send('root')
-})
+});
+
+app.get('/allData', async (req, res) =>  { 
+  const data = await allData(); res.send(JSON.stringify(data)) 
+});
 
 
 
@@ -36,10 +40,10 @@ async function run() {
       await client.db("admin").command({ ping: 1 });
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-      // await allData();
+      await allData();
       // await listByOrderedRank();
       // await listByRank();
-      await sortByYear();
+      // await sortByYear();
 
     } finally {
       // Ensures that the client will close when you finish/error
@@ -52,8 +56,7 @@ async function run() {
 async function allData() {
 
    const data = await myColl.find().toArray();
-   console.log(data);
-
+   return data;
 }
 
 // Rank values based on numerical importance
@@ -78,7 +81,7 @@ async function listByRank() {
 
 async function sortByYear() {
 
-  let year = "2011";
-    const data = await myColl.find( {"_id": { "$regex": year}}).toArray();
+  let year = 2011;
+    const data = await myColl.find( {"_id": { "$regex": String(year)}}).toArray();
     console.log(data);
 }
