@@ -1,0 +1,24 @@
+{
+  "name": "baby_names",
+  "version": "1.0.0",
+  "description": "Filter for only the relevent fields",
+  "main": "baby.js",
+  "scripts": {
+    "test": "echo Error: no test specified && exit 1"
+  },
+  "author": "Nick",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JaDen-Martin/NoSQL.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/JaDen-Martin/NoSQL/issues"
+  },
+  "homepage": "https://github.com/JaDen-Martin/NoSQL#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongodb": "^5.6.0"
+  }
+}
