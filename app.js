@@ -4,11 +4,6 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const uri = "mongodb+srv://Admin:nyjd-2023@nyjd.xa26v9a.mongodb.net/?retryWrites=true&w=majority";
 
-
-// const apiRouter = require('./NoSql');
-// const router = express.Router();
-// router.use('/NoSql', apiRouter);
-
 app.listen(3000, () => console.log("Server is running"));
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -24,6 +19,9 @@ app.get('/', (req, res) => {
   res.send('root')
 })
 
+//const cors = require("cors");
+//app.use(cors());
+
 const myDB = client.db("NoSql");
 const myColl = myDB.collection("baby_names");
 
@@ -36,7 +34,10 @@ async function run() {
       await client.db("admin").command({ ping: 1 });
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-      await allData();
+      // await allData();
+      // await listByOrderedRank();
+      // await listByRank();
+      await sortByYear();
 
     } finally {
       // Ensures that the client will close when you finish/error
@@ -51,4 +52,31 @@ async function allData() {
    const data = await myColl.find().toArray();
    console.log(data);
 
+}
+
+// Rank values based on numerical importance
+async function listByOrderedRank() {
+
+  let category = "rank";
+  for(let x = 0; x < 100; x++) {
+  
+      const data = await myColl.find({ "rank": x}).toArray();
+      console.log(data);
+  }
+}
+
+// Rank top or lowest items
+async function listByRank() {
+
+   let x = 5;
+   const data = await myColl.find( {"rank":{$lt: x}}).toArray();
+   console.log(data);
+
+}
+
+async function sortByYear() {
+
+  let year = "2011";
+    const data = await myColl.find( {"_id": { "$regex": year}}).toArray();
+    console.log(data);
 }
