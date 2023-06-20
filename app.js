@@ -1,8 +1,10 @@
 const express = require("express");
+const cors = require("cors");
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const uri = "mongodb+srv://Admin:nyjd-2023@nyjd.xa26v9a.mongodb.net/?retryWrites=true&w=majority";
+app.use(cors());
 
 app.listen(3000, () => console.log("Server is running"));
 
@@ -19,8 +21,8 @@ app.get('/', (req, res) => {
   res.send('root')
 })
 
-//const cors = require("cors");
-//app.use(cors());
+
+
 
 const myDB = client.db("NoSql");
 const myColl = myDB.collection("baby_names");
