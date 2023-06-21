@@ -38,14 +38,20 @@ function DataTable() {
   const [rows, setRows ] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
-  const [sortBy, setSortBy] = useState(rows.length >= 0 ? {field: "none", order: "desc" } : {field: "name", order: "desc" });
+  const [sortBy, setSortBy] = useState(rows.length >= 0 ? {field: "none", order: "desc" }: {field: "name", order: "desc" });
+
+  const [serverPageNumber, setServerPageNumber] = useState(1);
+  const [isLastServerPage, setIsLastServerPage] = useState(false);
 
   useEffect(() => {
     if (rows.length > 0) return; //if we already have data do not send a request
-    fetch("http://localhost:3000/allData").then(res => res.json()).then(json=> 
-    setRows(json.slice(0, 300)));
-  }, [])
+    fetch(`http://localhost:3000/allData/`).then(res => res.json()).then(json=> 
+    setRows(json.slice(0,77)));
+  }, []);
 
+
+
+  
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
@@ -53,8 +59,37 @@ function DataTable() {
   }
 
   const handleNextPage = () => {
-    // determine if we are on the last page
-    if (rowsPerPage * (page + 1) >= rows.length) return;
+   
+    if (rowsPerPage * (page + 1) >= rows.length) {  // determine if we are on the last page
+      if (isLastServerPage){  
+        return;
+      } else {
+        const newServerPage = serverPageNumber + 1;
+        fetch(`http://localhost:3000/allData/${newServerPage}`).then(res => {
+       
+        if (res.ok){
+          return res.json();
+        }
+        return null;
+      }).catch(err => {
+          if (err){
+            console.log("unable to load paginated data " + err);
+            return;
+          }
+
+        }).then(json=>  
+        {
+          if (!json) return;
+
+          console.log("Im in here")
+          const newRows = [...rows, ...json];
+          setRows(newRows);
+          setServerPageNumber(newServerPage);
+        
+        }).catch(err => console.log(err));
+      }
+    }
+
 
     setPage(page => page + 1);
   }
@@ -89,7 +124,7 @@ function DataTable() {
 
   return (
     <>
-    <h1>Test</h1>
+     <h1>NYJD</h1>
     <TableContainer component={Paper} className='data-table'>
     <Table aria-label="simple table" stickyHeader>
       <TableHead className='table-header'>

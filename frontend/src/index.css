@@ -14,9 +14,18 @@
   -webkit-text-size-adjust: 100%;
 }
 
+.nav {
+  display: flex;
+  justify-content: space-around;
+  position: absolute;
+  left: 0;
+  top: 1rem;
+  width: 100vw;
+  padding: 1rem 5rem;
+}
 a {
   font-weight: 500;
-  color: #646cff;
+  color: rgba(255, 255, 255, 0.87);
   text-decoration: inherit;
 }
 a:hover {
