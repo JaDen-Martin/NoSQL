@@ -66,10 +66,10 @@ async function allDataNum(page) {
 
   var set = page * 500;
   
-  for(var x = set - 1; x <= page * 500; x++) {
-    list[x] = data[x];
+  for(var x = 0; x + set < set + 500; x++) {
+    list[x] = data[set + x];
   }
-  console.log(x - set);
+  
   return list;
 }
 // Rank values within a threshold
