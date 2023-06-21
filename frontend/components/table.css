@@ -4,9 +4,14 @@ table {
 
 .data-table {
     padding: 1rem;
+    width: 51vw !important;
 
 }
-
+@media (max-width: 1260px) {
+    .data-table {
+        width: 70vw !important; 
+    }
+  }
 select {
     margin-left: 0.5rem;
     padding: 2px;
@@ -34,9 +39,10 @@ select {
     margin: 1px;
    
 }
-.table-name:hover {
+.table-name:hover, .show-curs:hover {
     cursor: pointer;
 }
+
 
 .table-arrows span:hover {
 
@@ -46,4 +52,11 @@ select {
 .totalNo {
     font-size: 0.75rem;
     font-weight: 500;
+}
+
+.sort-arrow {
+    position: absolute;
+    background-color: transparent !important;
+    right: 2px;
+
 }

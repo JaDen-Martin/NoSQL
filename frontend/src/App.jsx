@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import Nav from '../components/Nav'
 import DataTable from '../components/DataTable'
 import './App.css'
 
@@ -10,7 +9,9 @@ function App() {
   return (
  
       <>
-       <div>NYJD</div>
+      <Nav />
+       <h1>NYJD</h1>
+   
        < DataTable/>
        </>
   )

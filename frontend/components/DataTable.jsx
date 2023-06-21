@@ -1,25 +1,50 @@
 import {useState, useEffect} from 'react';
-import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper, TableFooter, TablePagination, Select } from '@mui/material'
+import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper, TableFooter, TablePagination, Divider } from '@mui/material'
 import './table.css'
 
+function sortData( { field, order }, data, setData) {
+
+console.log("sorting data by " + field + ' ' + order)
+const dataCopy = [...data];
+
+dataCopy.sort( (a, b) => {
+  if (order == 'desc') {
+    if (field == 'name' ) { //Here we only care if field is name because it is the only string type 
+      
+    } else { // the rest of the fields store numbers and we can sort numerically
+      console.log("hiiii")
+      return b[field] - a[field];
+    } 
+
+  } else { // the order is ascending 
+    if (field == 'name' ) { //Here we only care if field is name because it is the only string type 
+      
+    } else { // the rest of the fields store numbers and we can sort numerically
+      console.log("byeee")
+      return a[field] - b[field];
+    } 
+
+  }
+
+})
+
+setData(dataCopy);
 
 
+}
 
-   function createData(number, item, qty, price) {
-    return { number, item, qty, price };
-   }
-    
-  
+
 function DataTable() {
   // const [data, setData] = useState([]);
   const [rows, setRows ] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [sortBy, setSortBy] = useState(rows.length >= 0 ? {field: "none", order: "desc" } : {field: "name", order: "desc" });
 
   useEffect(() => {
     fetch("http://localhost:3000/allData").then(res => res.json()).then(json=> 
-    setRows(json.slice(0, 35)));
-  }, [rows])
+    setRows(json.slice(0, 75)));
+  }, [])
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
@@ -29,24 +54,38 @@ function DataTable() {
 
   const handleNextPage = () => {
     // determine if we are on the last page
-    if (rowsPerPage * (page + 1) >= rows.length) {
-      return;
+    if (rowsPerPage * (page + 1) >= rows.length) return;
 
-    }
     setPage(page => page + 1);
-
   }
 
   const handlePrevPage = () => {
-    if (page <= 0) {
-      return;
-    } 
-
+    if (page <= 0) return;
+ 
     setPage(page => page - 1);
-    
   }
 
   const currentRow = page * rowsPerPage + 1;
+
+  const handleChangeSort = (e, field) => {
+    if (rows.length <= 0 ) {
+      return;
+    }
+    e.stopPropagation();
+    let newOrder;
+   
+    if (field == sortBy.field) { // if we are already sorting by that field change it from asc to desc 
+      newOrder = sortBy.order === 'asc' ? 'desc' : 'asc'; 
+    } else {
+      newOrder = 'desc'; // else default to desc  
+    }
+    
+    const newState = { field, 'order': newOrder };
+    setSortBy( newState );
+
+    sortData( newState, rows, setRows)
+
+  }
 
   return (
     <>
@@ -55,18 +94,49 @@ function DataTable() {
     <Table aria-label="simple table" stickyHeader>
       <TableHead className='table-header'>
         <TableRow >
-          <TableCell>Name</TableCell>
-          <TableCell align="right">Year</TableCell>
+          <TableCell className = 'show-curs' onClick={ e => handleChangeSort(e, 'name') } > 
+         
+          { sortBy.field !== 'name' 
+            ? '' 
+            : sortBy.order == "desc" 
+            ? <div className = 'sort-arrow'> &darr; </div> 
+            : <div className = 'sort-arrow'>&uarr;</div> 
+            }
+            Name
+          </TableCell>
+          <TableCell align="right" className='show-curs' onClick={ e => handleChangeSort(e, 'year') }>
+          { sortBy.field !== 'year' 
+            ? '' 
+            : sortBy.order == "desc" 
+            ? <div className = 'sort-arrow'> &darr; </div> 
+            : <div className = 'sort-arrow'>&uarr;</div> 
+            }
+            Year</TableCell>
           <TableCell align="right">Gender</TableCell>
           <TableCell align="right">Ethnicity</TableCell>
-          <TableCell align="right">Number</TableCell>
-          <TableCell align="right">Rank</TableCell>
+          <TableCell align="right" className='show-curs' onClick={ e => handleChangeSort(e, 'number') }>
+          { sortBy.field !== 'number' 
+            ? '' 
+            : sortBy.order == "desc" 
+            ? <div className = 'sort-arrow'> &darr; </div> 
+            : <div className = 'sort-arrow'>&uarr;</div> 
+            }
+            Number</TableCell>
+          <TableCell align="right" className='show-curs' onClick={ e => handleChangeSort(e, 'rank') }>
+          { sortBy.field !== 'rank' 
+            ? '' 
+            : sortBy.order == "desc" 
+            ? <div className = 'sort-arrow'> &darr; </div> 
+            : <div className = 'sort-arrow'>&uarr;</div> 
+            }
+            Rank</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {rows.length > 1 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+        {rows.length > 1 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+        .map((row) => (
           <TableRow key={row._id}>
-            <TableCell component="th" scope="row" className="table-name">
+            <TableCell component="th" scope="row" className="table-name" align="center">
               {row.name}
             </TableCell>
             <TableCell align="right" >{row.year}</TableCell>
@@ -77,7 +147,7 @@ function DataTable() {
           </TableRow>
         )) :
       
-          <TableCell align="center" >Loading Data...</TableCell>
+          <TableCell align="center" style={{ height: "1000px" }}>Loading Data...</TableCell>
 
         
       }       
