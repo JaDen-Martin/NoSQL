@@ -25,8 +25,10 @@ app.get('/allData', async (req, res) =>  {
   const data = await allData(); res.send(JSON.stringify(data)) 
 });
 
-
-
+app.get('/allData/' + ':pageNumber', async (req, res) =>  { 
+  var page = req.params.pageNumber;
+  const data = await allDataNum(page); res.send(JSON.stringify(data)) 
+});
 
 const myDB = client.db("NoSql");
 const myColl = myDB.collection("baby_names");
@@ -40,11 +42,6 @@ async function run() {
       await client.db("admin").command({ ping: 1 });
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-      // await allData();
-      // await listByOrderedRank();
-      // await listByRank();
-      // await sortByYear();
-
     } finally {
       // Ensures that the client will close when you finish/error
       // await client.close();
@@ -55,16 +52,27 @@ async function run() {
 // Function call to import all data from the database
 async function allData() {
 
-   const data = await myColl.aggregate(
-    [
-      { $sort : { name : 1} }
-    ]
- ).toArray();
-   return data;
+  let category = "rank";
+  const data = await myColl.find().sort({[category]: 1}).toArray();
+  return data;
 }
 
+async function allDataNum(page) {
 
-// Rank values based on numerical importance
+  let category = "rank";
+  const data = await myColl.find().sort({[category]: 1}).toArray();
+
+  let list = [];
+
+  var set = page * 500;
+  
+  for(var x = set - 1; x <= page * 500; x++) {
+    list[x] = data[x];
+  }
+  console.log(x - set);
+  return list;
+}
+// Rank values within a threshold
 async function listByOrderedRank() {
 
   let category = "rank";
@@ -82,11 +90,4 @@ async function listByRank() {
    const data = await myColl.find( {"rank":{$lt: x}}).toArray();
    console.log(data);
 
-}
-
-async function sortByYear() {
-
-  let year = 2011;
-    const data = await myColl.find( {"_id": { "$regex": String(year)}}).toArray();
-    console.log(data);
 }
