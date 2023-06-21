@@ -5,33 +5,32 @@ import './table.css'
 function sortData( { field, order }, data, setData) {
 
 console.log("sorting data by " + field + ' ' + order)
-const dataCopy = [...data];
+const dataCopy = [...data]; //copy data to not mutate state directly
+console.log(dataCopy[0][field])
 
-dataCopy.sort( (a, b) => {
+if (field == 'name' ) { //Here we only care if field is name because it is the only string type 
+  console.log("we are sorting by name");
   if (order == 'desc') {
-    if (field == 'name' ) { //Here we only care if field is name because it is the only string type 
-      
-    } else { // the rest of the fields store numbers and we can sort numerically
-      console.log("hiiii")
-      return b[field] - a[field];
+    console.log("name desc")
+    dataCopy.sort( (a, b) => a[field] - b[field]);
+  } else { 
+    console.log("name asc")
+      dataCopy.sort( (a, b) => b[field] - a[field] );
+    } 
+  } else { // the rest of the fields store numbers and we can sort numerically
+    if (order == 'desc') {
+      dataCopy.sort( (a, b) => b[field] - a[field] );
+    } else { 
+        dataCopy.sort( (a, b) => a[field] - b[field]);
     } 
 
-  } else { // the order is ascending 
-    if (field == 'name' ) { //Here we only care if field is name because it is the only string type 
-      
-    } else { // the rest of the fields store numbers and we can sort numerically
-      console.log("byeee")
-      return a[field] - b[field];
-    } 
+  } 
 
-  }
-
-})
-
-setData(dataCopy);
-
-
+  setData(dataCopy);
 }
+
+
+
 
 
 function DataTable() {
@@ -42,6 +41,7 @@ function DataTable() {
   const [sortBy, setSortBy] = useState(rows.length >= 0 ? {field: "none", order: "desc" } : {field: "name", order: "desc" });
 
   useEffect(() => {
+    if (rows.length > 0) return; //if we already have data do not send a request
     fetch("http://localhost:3000/allData").then(res => res.json()).then(json=> 
     setRows(json.slice(0, 75)));
   }, [])
