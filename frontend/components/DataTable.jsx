@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper } from '@mui/material'
+import {useState, useEffect} from 'react';
+import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper, TableFooter, TablePagination, Select } from '@mui/material'
 import './table.css'
 
 
@@ -9,26 +9,52 @@ import './table.css'
     return { number, item, qty, price };
    }
     
-   function getAllData() {
-
-
-   }
-   const rows = [
-    createData(1, "Apple", 5, 3),
-    createData(2, "Orange", 2, 2),
-    createData(3, "Grapes", 3, 1),
-    createData(4, "Tomato", 2, 1.6),
-    createData(5, "Mango", 1.5, 4)
-   ];
-
+  
 function DataTable() {
+  // const [data, setData] = useState([]);
+  const [rows, setRows ] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/allData").then(res => res.json()).then(json=> 
+    setRows(json.slice(0, 35)));
+  }, [rows])
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+
+  }
+
+  const handleNextPage = () => {
+    // determine if we are on the last page
+    if (rowsPerPage * (page + 1) >= rows.length) {
+      return;
+
+    }
+    setPage(page => page + 1);
+
+  }
+
+  const handlePrevPage = () => {
+    if (page <= 0) {
+      return;
+    } 
+
+    setPage(page => page - 1);
+    
+  }
+
+  const currentRow = page * rowsPerPage + 1;
+
   return (
     <>
     <h1>Test</h1>
     <TableContainer component={Paper} className='data-table'>
-    <Table aria-label="simple table">
-      <TableHead>
-        <TableRow>
+    <Table aria-label="simple table" stickyHeader>
+      <TableHead className='table-header'>
+        <TableRow >
           <TableCell>Name</TableCell>
           <TableCell align="right">Year</TableCell>
           <TableCell align="right">Gender</TableCell>
@@ -38,26 +64,48 @@ function DataTable() {
         </TableRow>
       </TableHead>
       <TableBody>
-        {rows.map((row) => (
-          <TableRow key={row.number}>
-            <TableCell component="th" scope="row">
-              {row.number}
+        {rows.length > 1 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+          <TableRow key={row._id}>
+            <TableCell component="th" scope="row" className="table-name">
+              {row.name}
             </TableCell>
-            <TableCell align="right">{row.item}</TableCell>
-            <TableCell align="right">{row.qty}</TableCell>
-            <TableCell align="right">{row.price}</TableCell>
-            <TableCell align="right">{row.price}</TableCell>
-            <TableCell align="right">{row.price}</TableCell>
+            <TableCell align="right" >{row.year}</TableCell>
+            <TableCell align="right">{row.gender}</TableCell>
+            <TableCell align="right">{row.ethnicity}</TableCell>
+            <TableCell align="right">{row.number}</TableCell>
+            <TableCell align="right">{row.rank}</TableCell>
           </TableRow>
-        ))}
-        <TableRow >
-          <TableCell align="right" colSpan={5}>
-            <b>Total Cost:</b> 100
-          </TableCell>
-        </TableRow>
+        )) :
+      
+          <TableCell align="center" >Loading Data...</TableCell>
+
+        
+      }       
       </TableBody>
     </Table>
+    <div className='table-footer'>
+      <label htmlFor="rowsPerPage">Rows Per Page</label>
+        <select htmlFor="rowsPerPage" defaultValue={"20"} onChange={handleChangeRowsPerPage}>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+
+        </select>
+        <div>
+        <span>
+          {currentRow} - {currentRow + rowsPerPage < rows.length ? currentRow + rowsPerPage : rows.length}
+        </span>
+        <span className='totalNo'> of {rows.length} </span>
+        </div>
+        <span className="table-arrows">
+        <span onClick={handlePrevPage}>&lt;</span>
+        <span onClick={handleNextPage}>&gt;</span>
+        </span>
+        
+        
+        </div>
   </TableContainer>
+  
   </>
   )
 }

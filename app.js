@@ -40,7 +40,7 @@ async function run() {
       await client.db("admin").command({ ping: 1 });
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-      await allData();
+      // await allData();
       // await listByOrderedRank();
       // await listByRank();
       // await sortByYear();
@@ -55,9 +55,14 @@ async function run() {
 // Function call to import all data from the database
 async function allData() {
 
-   const data = await myColl.find().toArray();
+   const data = await myColl.aggregate(
+    [
+      { $sort : { name : 1} }
+    ]
+ ).toArray();
    return data;
 }
+
 
 // Rank values based on numerical importance
 async function listByOrderedRank() {
