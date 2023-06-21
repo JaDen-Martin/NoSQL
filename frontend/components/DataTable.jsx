@@ -12,10 +12,10 @@ if (field == 'name' ) { //Here we only care if field is name because it is the o
   console.log("we are sorting by name");
   if (order == 'desc') {
     console.log("name desc")
-    dataCopy.sort( (a, b) => a[field] - b[field]);
+    dataCopy.sort( (a, b) => a[field].localeCompare(b[field]));
   } else { 
     console.log("name asc")
-      dataCopy.sort( (a, b) => b[field] - a[field] );
+    dataCopy.sort( (a, b) => b[field].localeCompare(a[field]));
     } 
   } else { // the rest of the fields store numbers and we can sort numerically
     if (order == 'desc') {
@@ -43,7 +43,7 @@ function DataTable() {
   useEffect(() => {
     if (rows.length > 0) return; //if we already have data do not send a request
     fetch("http://localhost:3000/allData").then(res => res.json()).then(json=> 
-    setRows(json.slice(0, 75)));
+    setRows(json.slice(0, 300)));
   }, [])
 
   const handleChangeRowsPerPage = (event) => {
@@ -146,8 +146,9 @@ function DataTable() {
             <TableCell align="right">{row.rank}</TableCell>
           </TableRow>
         )) :
-      
-          <TableCell align="center" style={{ height: "1000px" }}>Loading Data...</TableCell>
+        <TableRow className='no-data' >
+          <TableCell align="center"  style={{ height: "1000px" }} colSpan={6}>Loading Data...</TableCell>
+        </ TableRow>
 
         
       }       
