@@ -99,6 +99,9 @@ async function allDataNum(field, page, order) {
       data = await myColl.find({}).sort(sortQuery).limit(ROWSPERPAGE).skip(skip).toArray();
       return data;
     }  
+
+  
+  return list;
 }
 // Rank values within a threshold
 async function listByOrderedRank() {
