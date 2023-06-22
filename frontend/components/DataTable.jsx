@@ -40,13 +40,20 @@ function DataTable() {
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [sortBy, setSortBy] = useState(rows.length >= 0 ? {field: "none", order: "desc" }: {field: "name", order: "desc" });
 
-  const [serverPageNumber, setServerPageNumber] = useState(1);
+  const [serverPageNumber, setServerPageNumber] = useState(0);
   const [isLastServerPage, setIsLastServerPage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (rows.length > 0) return; //if we already have data do not send a request
-    fetch(`http://localhost:3000/allData/`).then(res => res.json()).then(json=> 
-    setRows(json.slice(0,77)));
+    setIsLoading(true);
+    fetch(`http://localhost:3000/allData/`).then(res => {
+      setIsLoading(false);
+      return res.json();
+
+    }).then(json=> 
+    setRows(json));
+    setSortBy({field: "name", order: "desc"});
   }, []);
 
 
@@ -65,9 +72,11 @@ function DataTable() {
         return;
       } else {
         const newServerPage = serverPageNumber + 1;
-        fetch(`http://localhost:3000/allData/${newServerPage}`).then(res => {
-       
+        
+        fetch(`http://localhost:3000/allData/${sortBy.field}/${newServerPage}/${sortBy.order}`).then(res => {
+        setIsLoading(true);
         if (res.ok){
+          setIsLoading(false);
           return res.json();
         }
         return null;
@@ -81,16 +90,14 @@ function DataTable() {
         {
           if (!json) return;
 
-          console.log("Im in here")
-          const newRows = [...rows, ...json];
-          setRows(newRows);
+          const prev = rows.slice();
+          const newState = [...prev, ...json];
+          setRows(newState);
           setServerPageNumber(newServerPage);
         
         }).catch(err => console.log(err));
       }
     }
-
-
     setPage(page => page + 1);
   }
 
@@ -118,7 +125,20 @@ function DataTable() {
     const newState = { field, 'order': newOrder };
     setSortBy( newState );
 
-    sortData( newState, rows, setRows)
+    fetch(`http://localhost:3000/allData/${field}/0/${newOrder}`).
+    then(res => {
+      setIsLoading(true);
+      if (res.ok) {
+        setIsLoading(false);
+        return res.json();
+      }
+    }).then(json => {
+      setServerPageNumber(0);
+      setPage(0);
+      setRows(json)
+    });
+    // sortData( newState, rows, setRows)  no longer need to call sort data, the data should come back sorted from the server 
+
 
   }
 
@@ -168,7 +188,7 @@ function DataTable() {
         </TableRow>
       </TableHead>
       <TableBody>
-        {rows.length > 1 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+        {!isLoading ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         .map((row) => (
           <TableRow key={row._id}>
             <TableCell component="th" scope="row" className="table-name" align="center">

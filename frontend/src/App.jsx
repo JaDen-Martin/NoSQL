@@ -17,7 +17,7 @@ function App() {
           <Route path='/' element={<DataTable />} />
           <Route path='/about' element={ <About / > } />
 
-          <Route path='/*' element={<DataTable />} />
+          <Route path='/*' element={<DataTable />} /> 
        </ Routes>
        </BrowserRouter>
        </>

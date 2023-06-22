@@ -4,9 +4,13 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const uri = "mongodb+srv://Admin:nyjd-2023@nyjd.xa26v9a.mongodb.net/?retryWrites=true&w=majority";
+const ROWSPERPAGE = 500; // A global constant that stores the amount of documents to serve
+const INITIALSORTFIELD = 'name'; //String to hold the sort criteria for initial queries
 app.use(cors());
 
 app.listen(3000, () => console.log("Server is running"));
+
+const cache = { }; // Potential feature cache all data requests for a search criteria and order, if that data has already been requested before send it from the cache. 
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -17,21 +21,32 @@ const client = new MongoClient(uri, {
     }
   });
 
+  const myDB = client.db("NoSql");
+  const myColl = myDB.collection("baby_names");
+
 app.get('/', (req, res) => {
-  res.send('root')
+  res.send('root'); 
 });
 
 app.get('/allData', async (req, res) =>  { 
-  const data = await allData(); res.send(JSON.stringify(data)) 
+
+  const data = await allData(); 
+  res.json(data);
 });
 
-app.get('/allData/' + ':pageNumber', async (req, res) =>  { 
-  var page = req.params.pageNumber;
-  const data = await allDataNum(page); res.send(JSON.stringify(data)) 
+app.get('/allData/:field/:pageNumber/:order', async (req, res) =>  { 
+  const { field, pageNumber, order } = req.params;
+
+  if ( false) { // the condition here should be to check if the data for this request already exists in the cache, if it's true just send the cahched data. 
+
+  } else {
+    const data = await allDataNum(field, pageNumber, order); 
+    res.json(data);
+  }
+ 
 });
 
-const myDB = client.db("NoSql");
-const myColl = myDB.collection("baby_names");
+
 
 // connect to the database
 async function run() {
@@ -52,25 +67,38 @@ async function run() {
 // Function call to import all data from the database
 async function allData() {
 
-  let category = "rank";
-  const data = await myColl.find().sort({[category]: 1}).toArray();
+
+  const data = await myColl.find().sort({[INITIALSORTFIELD]: 1, _id: 1}).limit(ROWSPERPAGE).toArray(); 
   return data;
 }
 
-async function allDataNum(page) {
+async function allDataNum(field, page, order) {
+  let data;
+  const skip = +page * ROWSPERPAGE;
+  let sortInt;
+  let sortQuery = {};
 
-  let category = "rank";
-  const data = await myColl.find().sort({[category]: 1}).toArray();
-
-  let list = [];
-
-  var set = page * 500;
+  if (field == "name") { //Here name is the only string type 
   
-  for(var x = set - 1; x <= page * 500; x++) {
-    list[x] = data[x];
-  }
-  console.log(x - set);
-  return list;
+    if (order == 'desc') {
+        sortInt = 1;
+    } else {
+      sortInt = -1;
+      }
+    } else { // Here field is of type int 
+      if (order == 'desc') {
+      sortInt = -1;
+    } else {
+      sortInt = 1;
+      }
+    }
+
+    if (sortInt) {
+      sortQuery[field] = sortInt;
+      sortQuery['_id'] = 1;
+      data = await myColl.find({}).sort(sortQuery).limit(ROWSPERPAGE).skip(skip).toArray();
+      return data;
+    }  
 }
 // Rank values within a threshold
 async function listByOrderedRank() {
@@ -89,5 +117,10 @@ async function listByRank() {
    let x = 5;
    const data = await myColl.find( {"rank":{$lt: x}}).toArray();
    console.log(data);
+
+}
+
+async function listByName (name) { // To do: return all docs with the given name - order chronologically? For use in a line graph 
+
 
 }
