@@ -2,37 +2,6 @@ import {useState, useEffect} from 'react';
 import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper, TableFooter, TablePagination, Divider } from '@mui/material'
 import './table.css'
 
-function sortData( { field, order }, data, setData) {
-
-console.log("sorting data by " + field + ' ' + order)
-const dataCopy = [...data]; //copy data to not mutate state directly
-console.log(dataCopy[0][field])
-
-if (field == 'name' ) { //Here we only care if field is name because it is the only string type 
-  console.log("we are sorting by name");
-  if (order == 'desc') {
-    console.log("name desc")
-    dataCopy.sort( (a, b) => a[field].localeCompare(b[field]));
-  } else { 
-    console.log("name asc")
-    dataCopy.sort( (a, b) => b[field].localeCompare(a[field]));
-    } 
-  } else { // the rest of the fields store numbers and we can sort numerically
-    if (order == 'desc') {
-      dataCopy.sort( (a, b) => b[field] - a[field] );
-    } else { 
-        dataCopy.sort( (a, b) => a[field] - b[field]);
-    } 
-
-  } 
-
-  setData(dataCopy);
-}
-
-
-
-
-
 function DataTable() {
   // const [data, setData] = useState([]);
   const [rows, setRows ] = useState([]);
@@ -144,7 +113,7 @@ function DataTable() {
 
   return (
     <>
-     <h1>NYJD</h1>
+     <h1>N<span>Y</span>J<span>D</span></h1>
     <TableContainer component={Paper} className='data-table'>
     <Table aria-label="simple table" stickyHeader>
       <TableHead className='table-header'>
@@ -235,5 +204,32 @@ function DataTable() {
   </>
   )
 }
+
+// function sortData( { field, order }, data, setData) {
+
+//   console.log("sorting data by " + field + ' ' + order)
+//   const dataCopy = [...data]; //copy data to not mutate state directly
+//   console.log(dataCopy[0][field])
+  
+//   if (field == 'name' ) { //Here we only care if field is name because it is the only string type 
+//     console.log("we are sorting by name");
+//     if (order == 'desc') {
+//       console.log("name desc")
+//       dataCopy.sort( (a, b) => a[field].localeCompare(b[field]));
+//     } else { 
+//       console.log("name asc")
+//       dataCopy.sort( (a, b) => b[field].localeCompare(a[field]));
+//       } 
+//     } else { // the rest of the fields store numbers and we can sort numerically
+//       if (order == 'desc') {
+//         dataCopy.sort( (a, b) => b[field] - a[field] );
+//       } else { 
+//           dataCopy.sort( (a, b) => a[field] - b[field]);
+//       } 
+  
+//     } 
+  
+//     setData(dataCopy);
+//   }
 
 export default DataTable
