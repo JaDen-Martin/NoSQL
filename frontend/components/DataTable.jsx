@@ -35,7 +35,7 @@ function DataTable() {
   }
 
   const handleNextPage = () => {
-   
+    if (isLoading) return;
     if (rowsPerPage * (page + 1) >= rows.length) {  // determine if we are on the last page
       if (isLastServerPage){  
         return;
@@ -71,6 +71,7 @@ function DataTable() {
   }
 
   const handlePrevPage = () => {
+    if (isLoading) return;
     if (page <= 0) return;
  
     setPage(page => page - 1);
@@ -93,18 +94,18 @@ function DataTable() {
     
     const newState = { field, 'order': newOrder };
     setSortBy( newState );
-
+    setIsLoading(true);
     fetch(`http://localhost:3000/allData/${field}/0/${newOrder}`).
     then(res => {
-      setIsLoading(true);
+   
       if (res.ok) {
-        setIsLoading(false);
         return res.json();
       }
     }).then(json => {
-      setServerPageNumber(0);
+      setServerPageNumber(0); 
       setPage(0);
       setRows(json)
+      setIsLoading(false);
     });
     // sortData( newState, rows, setRows)  no longer need to call sort data, the data should come back sorted from the server 
 
