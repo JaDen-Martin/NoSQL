@@ -138,13 +138,17 @@ async function listByRank() {
 // Do a search for names that start with the term
 async function getByNames (term) { 
 
-  const pipeline = [ 
+  const pipeline = [ //this pipeline 
     {
       '$match': {
         'name': {
           '$regex': new RegExp(`^${term}`, 'i')
         }
       }
+    }, 
+    {
+      '$sort': { 'name': -1 }
+
     },{
       '$group': {
         '_id': '$name'

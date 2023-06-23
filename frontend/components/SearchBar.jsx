@@ -9,9 +9,13 @@ function SearchBar() {
     const navigate = useNavigate();
 
     const inputChanged = e => {
-        setSearchTerm(e.target.value);
-       
-        setShowResults(true);
+     
+       if (e.target.value.length <= 0){
+        setResults([{_id: ''}]);
+        setShowResults(false);
+        return;
+       }
+      
         clearTimeout(timer);
 
         const newTimer = setTimeout(()=> {
@@ -23,8 +27,8 @@ function SearchBar() {
            }).then(data => {
             console.log(data.length)
                 if (data.length > 0){
-                    console.log('found 1')
                     setResults(data);
+                    setShowResults(true);
                     
                 } else {
                     console.log('not found any')
@@ -40,7 +44,7 @@ function SearchBar() {
         if (name.startsWith('0')){
             return;
         }
-        console.log(name)
+     
         navigate(`/name/${name}`);
     }
 
