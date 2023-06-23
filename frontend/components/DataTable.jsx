@@ -1,16 +1,17 @@
 import {useState, useEffect} from 'react';
 import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper, TableFooter, TablePagination, Divider } from '@mui/material'
 import './table.css'
+import GenderSelector from './GenderSelector';
 
 function DataTable() {
   // const [data, setData] = useState([]);
   const [rows, setRows ] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
-  const [sortBy, setSortBy] = useState(rows.length >= 0 ? {field: "none", order: "desc" }: {field: "name", order: "desc" });
+  const [sortBy, setSortBy] = useState(rows?.length >= 0 ? {field: "none", order: "desc", gender: "a" } : {field: "name", order: "desc", gender: "a" });
 
   const [serverPageNumber, setServerPageNumber] = useState(0);
-  const [isLastServerPage, setIsLastServerPage] = useState(false);
+  // const [isLastServerPage, setIsLastServerPage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -22,10 +23,17 @@ function DataTable() {
 
     }).then(json=> 
     setRows(json));
-    setSortBy({field: "name", order: "desc"});
+    setSortBy({field: "name", order: "desc", gender: "a"});
   }, []);
 
 
+  useEffect(() => { //run this effect whenever the gender filter changes 
+    if (rows.length <= 0) return //if we dont have data (first render do not fire this request)
+    console.log("sending request to for new data " + sortBy.gender)
+    fetchDataAndResetPage(`http://localhost:3000/allData/${sortBy.field}/0/${sortBy.order}/${sortBy.gender}`);
+    
+  }, [sortBy.gender])
+  
 
   
   const handleChangeRowsPerPage = (event) => {
@@ -35,14 +43,12 @@ function DataTable() {
   }
 
   const handleNextPage = () => {
-    if (isLoading) return;
+    if (isLoading || !rows?.length) return;
     if (rowsPerPage * (page + 1) >= rows.length) {  // determine if we are on the last page
-      if (isLastServerPage){  
-        return;
-      } else {
+      
         const newServerPage = serverPageNumber + 1;
         
-        fetch(`http://localhost:3000/allData/${sortBy.field}/${newServerPage}/${sortBy.order}`).then(res => {
+        fetch(`http://localhost:3000/allData/${sortBy.field}/${newServerPage}/${sortBy.order}/${sortBy.gender}`).then(res => {
         setIsLoading(true);
         if (res.ok){
           setIsLoading(false);
@@ -59,13 +65,11 @@ function DataTable() {
         {
           if (!json) return;
 
-          const prev = rows.slice();
-          const newState = [...prev, ...json];
-          setRows(newState);
+          setRows(prev => [...prev, ...json]);
           setServerPageNumber(newServerPage);
         
         }).catch(err => console.log(err));
-      }
+      
     }
     setPage(page => page + 1);
   }
@@ -92,12 +96,17 @@ function DataTable() {
       newOrder = 'desc'; // else default to desc  
     }
     
-    const newState = { field, 'order': newOrder };
+    const newState = { field, 'order': newOrder, "gender": sortBy.gender };
     setSortBy( newState );
     setIsLoading(true);
-    fetch(`http://localhost:3000/allData/${field}/0/${newOrder}`).
+    fetchDataAndResetPage(`http://localhost:3000/allData/${field}/0/${newOrder}/${sortBy.gender}`);
+    // sortData( newState, rows, setRows)  no longer need to call sort data, the data should come back sorted from the server 
+
+  }
+
+  function fetchDataAndResetPage(url){
+    fetch(url).
     then(res => {
-   
       if (res.ok) {
         return res.json();
       }
@@ -106,15 +115,13 @@ function DataTable() {
       setPage(0);
       setRows(json)
       setIsLoading(false);
-    });
-    // sortData( newState, rows, setRows)  no longer need to call sort data, the data should come back sorted from the server 
-
-
+    }).catch(err => console.log(err));
   }
 
   return (
     <>
      <h1>N<span>Y</span>J<span>D</span></h1>
+     <GenderSelector gender={sortBy.gender} setSortBy={setSortBy} />
     <TableContainer component={Paper} className='data-table'>
     <Table aria-label="simple table" stickyHeader>
       <TableHead className='table-header'>
@@ -205,6 +212,7 @@ function DataTable() {
   </>
   )
 }
+
 
 // function sortData( { field, order }, data, setData) {
 

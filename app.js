@@ -10,7 +10,6 @@ app.use(cors());
 
 app.listen(3000, () => console.log("Server is running"));
 
-const cache = { }; // Potential feature cache all data requests for a search criteria and order, if that data has already been requested before send it from the cache. 
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -34,15 +33,11 @@ app.get('/allData', async (req, res) =>  {
   res.json(data);
 });
 
-app.get('/allData/:field/:pageNumber/:order', async (req, res) =>  { 
-  const { field, pageNumber, order } = req.params;
+app.get('/allData/:field/:pageNumber/:order/:gender', async (req, res) =>  { 
+  const { field, pageNumber, order, gender } = req.params;
 
-  if ( false) { // the condition here should be to check if the data for this request already exists in the cache, if it's true just send the cahched data. 
-
-  } else {
-    const data = await allDataNum(field, pageNumber, order); 
+    const data = await allDataNum(field, pageNumber, order, gender); 
     res.json(data);
-  }
  
 });
 
@@ -72,12 +67,12 @@ async function allData() {
   return data;
 }
 
-async function allDataNum(field, page, order) {
+async function allDataNum(field, page, order, gender) {
   let data;
   const skip = +page * ROWSPERPAGE;
   let sortInt;
   let sortQuery = {};
-
+  let findQuery = {};
   if (field == "name") { //Here name is the only string type 
   
     if (order == 'desc') {
@@ -93,16 +88,18 @@ async function allDataNum(field, page, order) {
       }
     }
 
-    if (sortInt) {
       sortQuery[field] = sortInt;
       sortQuery['_id'] = 1;
-      data = await myColl.find({}).sort(sortQuery).limit(ROWSPERPAGE).skip(skip).toArray();
-      return data;
-    }  
+      if (gender == 'm'){
+        findQuery['gender'] = 'Male';
+      } else if (gender == 'f') {
+        findQuery['gender'] = 'Female';
+      }
 
-  
-  return list;
+      data = await myColl.find(findQuery).sort(sortQuery).limit(ROWSPERPAGE).skip(skip).toArray();
+      return data;
 }
+
 // Rank values within a threshold
 async function listByOrderedRank() {
 
