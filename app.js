@@ -41,6 +41,14 @@ app.get('/allData/:field/:pageNumber/:order/:gender', async (req, res) =>  {
  
 });
 
+app.get('/names/:searchTerm', async (req, res) =>  { 
+  const { searchTerm } = req.params;
+    console.log(searchTerm)
+    const names = await getByNames(searchTerm); 
+    res.json(names);
+ 
+});
+
 
 
 // connect to the database
@@ -127,7 +135,27 @@ async function listByRank() {
 
 }
 
-async function listByName (name) { // To do: return all docs with the given name - order chronologically? For use in a line graph 
+// Do a search for names that start with the term
+async function getByNames (term) { 
 
+  const pipeline = [ 
+    {
+      '$match': {
+        'name': {
+          '$regex': new RegExp(`^${term}`, 'i')
+        }
+      }
+    },{
+      '$group': {
+        '_id': '$name'
+      } 
+    }, {
+      '$limit': 5
+    }
+  ]
+
+  const names = await myColl.aggregate(pipeline).toArray();
+
+  return names;
 
 }

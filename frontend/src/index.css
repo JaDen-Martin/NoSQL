@@ -78,6 +78,29 @@ button:hover {
   border-color: #646cff;
 }
 
+.search-res {
+  background-color: rgba(83, 91, 242, 0.80);
+  color: rgb(255, 255, 255) !important;
+  padding: 0;
+  max-width: 195.38px;
+  min-width: 195.38px !important;
+  z-index: 1000;
+  position: absolute;
+  text-decoration: none;
+  top: 0.75rem;
+  list-style: none;
+}
+.search-res li {
+  padding: 3px 0rem;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.search-res li:hover {
+  cursor: pointer;
+  background-color: rgba(87, 94, 240, 0.8);
+}
+
+
 input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-results-button,
