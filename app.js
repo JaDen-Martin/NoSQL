@@ -89,7 +89,14 @@ async function allDataNum(field, page, order, gender) {
     }
 
       sortQuery[field] = sortInt;
-      sortQuery['_id'] = 1;
+      
+  
+      if (field == 'rank') { // if we are sorting based on rank sort it secondly by number in the opposite order so if Rank 1 is first the highest number of all ranks is listed first
+        sortQuery['number'] = -sortInt;
+      } 
+        sortQuery['_id'] = 1;
+      
+
       if (gender == 'm'){
         findQuery['gender'] = 'Male';
       } else if (gender == 'f') {

@@ -1,3 +1,39 @@
+.top-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 25% 25% 25% 25%;
+    height: 160px;
+    /* justify-content: center; */
+}
+.top-container h1 {
+    width: fit-content;
+    grid-column-start: 2;
+    justify-self: center;
+}
+
+.search-cont {
+    grid-column-start: 1;
+    grid-row-start: 3;
+    position: relative;
+    width: fit-content;
+}
+
+.search-cont input {
+    padding: 4px 0.7rem;
+    border-radius: 3px;
+}
+
+.search-cont:after { 
+    content: url("../assets/noun-magnifying-glass-1032008.png"); 
+    zoom:3.5%;
+    position: absolute;
+    right: 40px;
+    top: 12%;
+
+}
+input:focus{
+    outline: rgba(255, 255, 255, 0.637) solid 1px;
+}
 table {
     padding-bottom: 1rem;
 }

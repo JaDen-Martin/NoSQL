@@ -1,7 +1,9 @@
 import {useState, useEffect} from 'react';
-import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper, TableFooter, TablePagination, Divider } from '@mui/material'
+import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper } from '@mui/material'
+import { useNavigate } from 'react-router-dom';
 import './table.css'
 import GenderSelector from './GenderSelector';
+import SearchBar from './SearchBar';
 
 function DataTable() {
   // const [data, setData] = useState([]);
@@ -102,6 +104,14 @@ function DataTable() {
     fetchDataAndResetPage(`http://localhost:3000/allData/${field}/0/${newOrder}/${sortBy.gender}`);
     // sortData( newState, rows, setRows)  no longer need to call sort data, the data should come back sorted from the server 
 
+  };
+  const navigate = useNavigate();
+  const handleNavigate = (field, value) => {
+ 
+    
+    console.log(field, value);
+    navigate(`/${field}/${value}`);
+
   }
 
   function fetchDataAndResetPage(url){
@@ -120,7 +130,10 @@ function DataTable() {
 
   return (
     <>
+    <div className='top-container'>
      <h1>N<span>Y</span>J<span>D</span></h1>
+     <SearchBar />
+     </div>
      <GenderSelector gender={sortBy.gender} setSortBy={setSortBy} />
     <TableContainer component={Paper} className='data-table'>
     <Table aria-label="simple table" stickyHeader>
@@ -167,8 +180,10 @@ function DataTable() {
       <TableBody>
         {!isLoading ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         .map((row) => (
-          <TableRow key={row._id}>
-            <TableCell component="th" scope="row" className="table-name" align="center">
+          <TableRow key={row._id} className='table-row'>
+            <TableCell component="th" scope="row" className="table-name" align="center" 
+            onClick={ ()=> handleNavigate("name", row.name)}
+            >
               {row.name}
             </TableCell>
             <TableCell align="right" >{row.year}</TableCell>
