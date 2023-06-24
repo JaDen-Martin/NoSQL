@@ -9,8 +9,9 @@ function SearchBar() {
     const navigate = useNavigate();
 
     const inputChanged = e => {
-     
-       if (e.target.value.length <= 0){
+        const input = e.target.value;
+
+       if (input <= 0){
         setResults([{_id: ''}]);
         setShowResults(false);
         return;
@@ -20,7 +21,7 @@ function SearchBar() {
 
         const newTimer = setTimeout(()=> {
             
-           fetch(`http://localhost:3000/names/${e.target.value}`).then(res => {
+           fetch(`http://localhost:3000/names/${input}`).then(res => {
             if (res.ok){
                 return res.json();
             }

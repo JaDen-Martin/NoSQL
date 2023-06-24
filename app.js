@@ -48,6 +48,7 @@ app.get('/names/:searchTerm', async (req, res) =>  {
     res.json(names);
  
 });
+app.get('/name/:name')
 
 
 
