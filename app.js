@@ -148,13 +148,14 @@ async function getByNames (term) {
       }
     }, 
     {
-      '$sort': { 'name': -1 }
-
-    },{
       '$group': {
         '_id': '$name'
       } 
-    }, {
+    },{
+      '$sort': { '_id': 1 }
+
+    }
+    , {
       '$limit': 5
     }
   ]

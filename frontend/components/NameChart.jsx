@@ -20,7 +20,7 @@ function NameChart() {
 
         //setting the scale
 
-        //setting
+        //setting up the data for the svg
 
     }, [data])
 

@@ -11,7 +11,7 @@ function SearchBar() {
     const inputChanged = e => {
         const input = e.target.value;
 
-       if (input <= 0){
+       if (input.length <= 0){
         setResults([{_id: ''}]);
         setShowResults(false);
         return;
