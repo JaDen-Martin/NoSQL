@@ -12,7 +12,7 @@ function SearchBar() {
         const input = e.target.value;
 
        if (input.length <= 0){
-        setResults([{_id: ''}]);
+        setResults([]);
         setShowResults(false);
         return;
        }
@@ -49,18 +49,19 @@ function SearchBar() {
         navigate(`/name/${name}`);
     }
 
-    // const handleBlur = () => {
-    //     setShowResults(false);
-    // }
+    const handleBlur = () => {
+        setShowResults(false);
+    }
 
     const handleFocus = () => {
         setShowResults(true)
     }
 
+   
   return (
     <div className='search-cont'>
-       <input type='search' spellCheck="false" onChange={inputChanged} placeholder='SEARCH NAME' onFocus={handleFocus} ></input>
-       {showResults &&
+       <input type='search' spellCheck="false" onChange={inputChanged} placeholder='SEARCH NAME' onFocus={handleFocus} onBlur={handleBlur}></input>
+       {showResults && results.length > 0 &&
        <ul className='search-res'>
             {
                 results.map(res => <li key={res._id} onClick={(e) => handleNavigate(res._id)}>{res._id}</li>)

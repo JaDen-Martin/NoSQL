@@ -36,16 +36,15 @@ app.get('/allData', async (req, res) =>  {
 app.get('/allData/:field/:pageNumber/:order/:gender', async (req, res) =>  { 
   const { field, pageNumber, order, gender } = req.params;
 
-    const data = await allDataNum(field, pageNumber, order, gender); 
-    res.json(data);
+  const data = await allDataNum(field, pageNumber, order, gender); 
+  res.json(data);
  
 });
 
 app.get('/names/:searchTerm', async (req, res) =>  { 
   const { searchTerm } = req.params;
-    console.log(searchTerm)
-    const names = await getByNames(searchTerm); 
-    res.json(names);
+  const names = await getByNames(searchTerm); 
+  res.json(names);
  
 });
 app.get('/name/:name')
