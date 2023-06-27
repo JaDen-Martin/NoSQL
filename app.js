@@ -47,9 +47,9 @@ app.get('/names/:searchTerm', async (req, res) =>  {
   res.json(names);
  
 });
-app.get('/name/:name')
-
-
+app.get('/name/:name', async (req, res) => {
+  const {name} = req.params;
+});
 
 // connect to the database
 async function run() {
