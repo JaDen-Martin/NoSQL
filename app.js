@@ -47,13 +47,7 @@ app.get('/names/:searchTerm', async (req, res) =>  {
   res.json(names);
  
 });
-
-app.get('/name/:name', async (req, res) =>  { 
-  const { name } = req.params;
-  const names = await getSingleName(name); 
-  res.json(names);
- 
-}) 
+app.get('/name/:name')
 
 
 
