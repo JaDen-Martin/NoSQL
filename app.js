@@ -47,7 +47,13 @@ app.get('/names/:searchTerm', async (req, res) =>  {
   res.json(names);
  
 });
-app.get('/name/:name')
+
+app.get('/name/:name', async (req, res) =>  { 
+  const { name } = req.params;
+  const names = await getSingleName(name); 
+  res.json(names);
+ 
+}) 
 
 
 
@@ -163,4 +169,9 @@ async function getByNames (term) {
 
   return names;
 
+}
+
+async function getSingleName( name ) {
+  const data = await myColl.find({"name": name}).sort({"number": -1}).toArray();
+  return data;
 }

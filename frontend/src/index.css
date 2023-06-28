@@ -114,6 +114,18 @@ button:focus-visible {
   background-color: rgb(235, 230, 230);
 }
 
+/* styles for line chart */
+
+.tick text {
+  font-size: 1rem;
+  color: rgba(255, 255, 255);
+}
+
+.tick line {
+  color: rgba(44, 44, 44, 0.3);
+  stroke-dasharray: 5 10; 
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
