@@ -6,11 +6,10 @@ function Names() {
   const { name } = useParams();
 
   return (
-    <>
-    <div>Names</div>
-    <div>{name}</div>
+    <div>
+    <h2 className='name-title'>{name}</h2>
     <NameChart />
-    </>
+    </div>
   )
 }
 

@@ -47,7 +47,15 @@ app.get('/names/:searchTerm', async (req, res) =>  {
   res.json(names);
  
 });
-app.get('/name/:name')
+
+app.get('/name/:name', async (req, res) =>  { 
+  console.log('in route')
+  const { name } = req.params;
+  const names = await getSingleName(name); 
+  res.json(names);
+ 
+});
+
 
 
 
@@ -138,7 +146,7 @@ async function listByRank() {
 // Do a search for names that start with the term
 async function getByNames (term) { 
 
-  const pipeline = [ //this pipeline 
+  const pipeline = [ 
     {
       '$match': {
         'name': {
@@ -166,6 +174,9 @@ async function getByNames (term) {
 }
 
 async function getSingleName( name ) {
-  const data = await myColl.find({"name": name}).sort({"number": -1}).toArray();
+  const findQuery = {name}
+  console.log(findQuery)
+  const data = await myColl.find(findQuery).sort({"year": 1}).toArray();
+  console.log(data);
   return data;
 }

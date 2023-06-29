@@ -115,6 +115,9 @@ button:focus-visible {
 }
 
 /* styles for line chart */
+.line-chart {
+  display: flex;
+}
 
 .tick text {
   font-size: 1rem;
@@ -123,8 +126,36 @@ button:focus-visible {
 
 .tick line {
   color: rgba(44, 44, 44, 0.3);
-  stroke-dasharray: 5 10; 
+  stroke-dasharray: 5 10;  
 }
+
+.legend {
+  background-color: #f9f9f9;
+  margin-top: 5px;
+  min-height:100%;
+  min-width: 170px;
+  border-left: 2.5px dashed rgba(44, 44, 44, 0.3);
+  padding: 0.75rem;
+}
+
+.items-cont {
+  margin-top: 20px;
+}
+
+.legend-item {
+  display: flex;
+  color: #242424;
+  padding: 5px 0px;
+  gap: 1rem;
+}
+.legend label {
+  left: 1rem;
+}
+
+.legend-item span:first-of-type {
+  border-radius: 5px;
+}
+
 
 @media (prefers-color-scheme: light) {
   :root {
