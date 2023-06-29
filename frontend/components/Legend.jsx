@@ -1,7 +1,7 @@
 import { Select, FormControl, InputLabel, MenuItem } from '@mui/material'
 import React from 'react'
 
-function Legend( {colors, allColor='#32CD32', showChart='ethnicity', handleChange } ) {
+function Legend( {colors, allColor='#32CD32', chartCriteria='ethnicity', handleChange } ) {
     const size = '20px';
 
   return (
@@ -12,8 +12,8 @@ function Legend( {colors, allColor='#32CD32', showChart='ethnicity', handleChang
         <Select 
         id="select"
         onChange={handleChange}
-        value={showChart} 
-        label="show chart"
+        value={chartCriteria} 
+        label="chart criteria"
         > 
         <MenuItem value='ethnicity' >ethnicity</MenuItem>
         <MenuItem value='all' >all</MenuItem>
@@ -21,7 +21,7 @@ function Legend( {colors, allColor='#32CD32', showChart='ethnicity', handleChang
         </FormControl>
         <div className='items-cont'>
         {
-           showChart == 'ethnicity' ? colors.map( color => {
+           chartCriteria == 'ethnicity' ? colors.map( color => {
                 return (
                     <div key={color.color} className='legend-item'>
                         <span style={{backgroundColor: color.color, height: size, width: size}}>

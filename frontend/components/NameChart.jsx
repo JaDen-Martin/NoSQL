@@ -18,7 +18,7 @@ function NameChart( { name } ) {
     const [data, setData ] = useState([]);
     const [lines, setLines] = useState([]);
     const [allLine, setAllLine ] = useState('');
-    const [showChart, setShowChart] = useState('ethnicity') //this will be either the string ethnicity or all and shows which version of the chart to display
+    const [chartCriteria, setChartCriteria] = useState('ethnicity') //this will be either the string ethnicity or all and shows which version of the chart to display
     const [colorsState, setColorsState] = useState([]);
     const svgRef = useRef();
 
@@ -37,7 +37,7 @@ function NameChart( { name } ) {
  
     useEffect( ()=> { //fetching effect runs on initial load, and evertime name changes
 
-        setShowChart('ethnicity'); //set to default chart on name change
+        setChartCriteria('ethnicity'); //set to default chart on name change
 
         if (name !== 'search'){
           fetch(`http://localhost:3000/name/${name}`).then(res => res.json()).then(json => {
@@ -60,7 +60,6 @@ function NameChart( { name } ) {
               function generateLineAndColors(arr, ethnicity){
                 if (arr.length > 0) {
                   const line = lineGenerator(arr);
-                  console.log(line);
                   linesArray.push([line, lineColors[ethnicity]]);
                   newColorsState.push({ethnicity, color: lineColors[ethnicity]});
                 }
@@ -77,6 +76,7 @@ function NameChart( { name } ) {
             }
           })
         } else { // if name is search and we can show another chart
+
         }
        
     }, [name]);
@@ -105,11 +105,11 @@ function NameChart( { name } ) {
     }
 
 
-    const handleShowChartChange = (e) => { //efect runs when select menu option changes
+    const handleCriteriaChange = (e) => { //efect runs when select menu option changes
       const value = e.target.value;
       if(!data.length || !lines.length) return;
       clearSvg();
-      setShowChart(value);
+      setChartCriteria(value);
 
       if (value == 'all'){
           const combinedVals = combineData(data);
@@ -153,7 +153,8 @@ function NameChart( { name } ) {
     <div className='line-chart'>
         <svg ref={svgRef} width={width} height={height}>
         
-          { showChart == 'ethnicity' ? lines.map ( line  => 
+          { 
+          chartCriteria == 'ethnicity' ? lines.map ( line  => 
             <path fill='none' stroke={line[1]} d={line[0]} strokeWidth="2.5" key={line[0]}/> 
           )  : 
            allLine && <path fill='none' stroke={allColor} d={allLine} strokeWidth="2.5" /> 
@@ -162,7 +163,7 @@ function NameChart( { name } ) {
 
         </svg>
 
-        <Legend colors={colorsState} showChart={showChart} setShowChart={setShowChart} handleChange={handleShowChartChange} />
+        <Legend colors={colorsState} chartCriteria={chartCriteria} handleChange={handleCriteriaChange} />
     </div>
   )
 }
