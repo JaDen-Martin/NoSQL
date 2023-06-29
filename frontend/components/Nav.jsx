@@ -5,7 +5,7 @@ function Nav() {
   return (
     <div className='nav'>
         <NavLink to='/'>Home</NavLink>
-        <NavLink to='/'>Tab 2</NavLink>
+        <NavLink to='/name/search'>LineChart</NavLink>
         <NavLink to='/'>Tab 3</NavLink>
         <NavLink to='/about'>About</NavLink>
     </div>

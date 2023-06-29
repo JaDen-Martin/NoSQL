@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import useComponentVisible from './useComponentVisible';
 
 function SearchBar() {
-    const [searchTerm, setSearchTerm] = useState('');
+    // const [searchTerm, setSearchTerm] = useState('');
     const [timer, setTimer] = useState(null);
     const [showResults, setShowResults] = useState(false);
     const [results, setResults] = useState([])
     const navigate = useNavigate();
+    const { ref, isComponentVisible, setIsComponentVisible } = useComponentVisible(true);
 
     const inputChanged = e => {
         const input = e.target.value;
@@ -32,7 +34,6 @@ function SearchBar() {
                     setShowResults(true);
                     
                 } else {
-                    console.log('not found any')
                     setResults([{_id: '0 Found'}])
                 }
             })
@@ -45,7 +46,7 @@ function SearchBar() {
         if (name.startsWith('0')){
             return;
         }
-     
+        setIsComponentVisible(false);
         navigate(`/name/${name}`);
     }
 
@@ -53,6 +54,9 @@ function SearchBar() {
     //     setShowResults(false);
     // }
 
+    const handleClick = () => {
+       setIsComponentVisible(true);
+    }
     const handleFocus = () => {
         setShowResults(true)
     }
@@ -60,11 +64,11 @@ function SearchBar() {
    
   return (
     <div className='search-cont'>
-       <input type='search' spellCheck="false" onChange={inputChanged} placeholder='SEARCH NAME' onFocus={handleFocus} ></input>
+       <input type='search' spellCheck="false" onChange={inputChanged} placeholder='SEARCH NAME' onFocus={handleFocus} onClick={handleClick}></input>
        {showResults && results.length > 0 &&
-       <ul className='search-res'>
+       <ul className='search-res' ref={ref} >
             {
-                results.map(res => <li key={res._id} onClick={(e) => handleNavigate(res._id)}>{res._id}</li>)
+              isComponentVisible &&  results.map(res => <li key={res._id} onClick={(e) => handleNavigate(res._id)}>{res._id}</li>)
             }
         </ul>
        }

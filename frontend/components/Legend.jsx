@@ -12,7 +12,7 @@ function Legend( {colors, allColor='#32CD32', showChart='ethnicity', handleChang
         <Select 
         id="select"
         onChange={handleChange}
-        value={showChart} //ethnicity or all
+        value={showChart} 
         label="show chart"
         > 
         <MenuItem value='ethnicity' >ethnicity</MenuItem>

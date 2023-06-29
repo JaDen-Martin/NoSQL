@@ -1,92 +1,91 @@
 import React, {useState, useEffect, useRef} from 'react'
 import { useParams } from 'react-router-dom'
-import { data } from '../assets/testData'
 import * as d3 from 'd3'
 import Legend from './Legend';
 
-const testData = data;
 const width = 720;
 const height = 600;
 const margin = { top: 5, right: 20, bottom: 20, left: 20 };
 const lineColors = {White:'#F51720', Black:'#2FF3E0', Asian:'#F8D210', Hispanic:'#FA26A0'}
 const allColor = '#32CD32'
 
+function filterByEthnicity(data, ethnicity) {
+  return data.filter( item => item.ethnicity == ethnicity).sort( (a,b) => a.year - b.year)
+}
 
-function NameChart() {
+
+function NameChart( { name } ) {
     const [data, setData ] = useState([]);
     const [lines, setLines] = useState([]);
     const [allLine, setAllLine ] = useState('');
     const [showChart, setShowChart] = useState('ethnicity') //this will be either the string ethnicity or all and shows which version of the chart to display
     const [colorsState, setColorsState] = useState([]);
     const svgRef = useRef();
-    // const showChartRef = useRef();
-    // showChartRef.current = showChart;
-    const {name} = useParams();
- 
-    useEffect( ()=> {
-        //setting up svg
-        if (data.length > 0) return;
-        const svg = d3.select(svgRef.current).attr('width', width).attr('height', height)
-        .style('background' , '#f9f9f9').style('margin-top', margin.top).style('overflow', 'visible');
 
-        let incomingData;
-        fetch(`http://localhost:3000/name/${name}`).then(res => res.json()).then(json => {
-          if (json){
-            incomingData = json;
-            setData(json);
-          }
-        })
-   
-    }, [])
-
-    useEffect(()=> {
-      if (!data.length) return;
-
-      const svg = d3.select(svgRef.current);
-
-      const wData = data.filter( item => item.ethnicity == "White").sort( (a,b) => a.year - b.year);
-      const bData = data.filter( item => item.ethnicity == "Black").sort( (a,b) => a.year - b.year);
-      const aData = data.filter( item => item.ethnicity == "Asian").sort( (a,b) => a.year - b.year);
-      const hData = data.filter( item => item.ethnicity == "Hispanic").sort( (a,b) => a.year - b.year);
-
+    function setUpChart(htmlNode = svgRef.current) {
+      const svg = d3.select(htmlNode).attr('width', width).attr('height', height)
+      .style('background' , '#f9f9f9').style('margin-top', margin.top).style('overflow', 'visible');
       svg.append('text').attr("class", "axis-label").attr('text-anchor', 'middle').attr('x', width / 2
       ).attr('y', height + 55).attr('stroke', 'rgba(255, 255, 255)').attr('font-weight', 100).attr("letter-spacing", 2).text('Year');
 
       svg.append('text').attr("class", "axis-label").attr('text-anchor', 'end').attr('x', -(height /2)).attr('y', -50).attr('stroke', 'rgba(255, 255, 255)').attr("letter-spacing", 2).attr("transform", "rotate(-90)").attr('font-weight', 100).text('Number');
-      
-      const numsInData = data.map(d => d.number);
-      const max = Math.max(...numsInData);
+    }
+    
+    useEffect(()=> {
+      setUpChart(svgRef.current);
+    }, [])
+ 
+    useEffect( ()=> { //fetching effect runs on initial load, and evertime name changes
 
-      const linesArray = []; //the svg paths will be calculated and added to this array
-      const newColorsState = []; //push only the colors that are in the data 
+        setShowChart('ethnicity'); //set to default chart on name change
 
-      function generateLineAndColors(data, ethnicity, newState){
-        if (data.length > 0) {
-          const line = lineGenerator(data);
-          newState.push([line, lineColors[ethnicity]]);
-          newColorsState.push({ethnicity, color: lineColors[ethnicity]});
-        } 
-      }
+        if (name !== 'search'){
+          fetch(`http://localhost:3000/name/${name}`).then(res => res.json()).then(json => {
+            if (json) {
+              setData(json);
+              clearSvg();
+              const wData = filterByEthnicity(json, "White");
+              const bData = filterByEthnicity(json, "Black");
+              const aData = filterByEthnicity(json, "Asian");
+              const hData = filterByEthnicity(json, "Hispanic");
+           
+              const numsInData = json.map(d => d.number);
+              const max = Math.max(...numsInData);
+           
+              const {xScale, yScale} = paintAxis(json, max);
+              const lineGenerator = paintChart(xScale, yScale);
+              const linesArray = []; //the svg paths will be calculated and added to this array
+              const newColorsState = []; //push only the colors that are in the data 
 
-      const {lineGenerator} = paintChart(data, max);
-      generateLineAndColors(wData, 'White', linesArray);
-      generateLineAndColors(bData, 'Black', linesArray);
-      generateLineAndColors(aData, 'Asian', linesArray);
-      generateLineAndColors(hData, 'Hispanic', linesArray);
-        
-      setColorsState(newColorsState);
-      setLines(linesArray); 
-      
-    }, [data]);
+              function generateLineAndColors(arr, ethnicity){
+                if (arr.length > 0) {
+                  const line = lineGenerator(arr);
+                  console.log(line);
+                  linesArray.push([line, lineColors[ethnicity]]);
+                  newColorsState.push({ethnicity, color: lineColors[ethnicity]});
+                }
+                
+              }
 
+              generateLineAndColors(wData, 'White');
+              generateLineAndColors(bData, 'Black');
+              generateLineAndColors(aData, 'Asian');
+              generateLineAndColors(hData, 'Hispanic');
+              setColorsState(newColorsState);
+              setLines(linesArray); 
+              
+            }
+          })
+        } else { // if name is search and we can show another chart
+        }
+       
+    }, [name]);
 
     function clearSvg() {
-      console.log('clearing svg')
       d3.selectAll('svg g').remove();
     }
 
-    function paintChart(dataArr, maxYVal) {
-      console.log('painting chart...' + maxYVal)
+    function paintAxis (dataArr, maxYVal) {
       const svg = d3.select(svgRef.current);
       const xScale = d3.scaleLinear().domain(d3.extent(dataArr.map(item => item.year))).range([0, width]);
 
@@ -96,57 +95,37 @@ function NameChart() {
    
       const yAxis = d3.axisLeft(yScale).tickSize([-(width)]);
       
-      
       svg.append('g').call(xAxis).attr('transform', `translate(0, ${height + margin.top + 5})`);
       svg.append('g').call(yAxis).attr('transform', `translate(0, 0)`);
-      
+      return { xScale, yScale };
+    }
 
-      const lineGenerator = d3.line().x(d => xScale(d.year)).y(d => yScale(d.number));
-      return {
-        xScale,
-        yScale,
-        lineGenerator
-      }
-
+    function paintChart(x, y) {
+      return d3.line().x(d => x(d.year)).y(d => y(d.number));
     }
 
 
-    const handleShowChartChange = (e) => {
+    const handleShowChartChange = (e) => { //efect runs when select menu option changes
       const value = e.target.value;
       if(!data.length || !lines.length) return;
       clearSvg();
       setShowChart(value);
 
       if (value == 'all'){
-        if (!allLine) {
-          console.log('we haven"t calculated all line yet');
           const combinedVals = combineData(data);
           const numbers = combinedVals.map(item => item.number);
-
           const max = Math.max(...numbers);
-
-          const { xScale,
-            yScale,
-            lineGenerator
-          } = paintChart(combinedVals, max);
+          const {xScale, yScale} = paintAxis(combinedVals, max);
+          const lineGenerator  = paintChart(xScale, yScale);
           const newAllLine = lineGenerator(combinedVals);
           setAllLine(newAllLine);
-        } 
-        const combinedVals = combineData(data);
-        const numbers = combinedVals.map(item => item.number);
-        const max = Math.max(...numbers);
-
-        const { xScale,
-          yScale,
-          lineGenerator
-        } = paintChart(combinedVals, max);
-    
         
       }  else { //value is ethnicity and we can paint the lines for ethnicity 
         const numsInData = data.map(d => d.number);
         const max = Math.max(...numsInData);
-        const {lineGenerator} = paintChart(data, max);
-      }
+        const {xScale, yScale} = paintAxis(data, max);
+        paintChart(xScale, yScale);
+        }
     
       }
     
@@ -172,11 +151,10 @@ function NameChart() {
   
   return (
     <div className='line-chart'>
-      {console.log(allLine)}
         <svg ref={svgRef} width={width} height={height}>
         
-          { showChart == 'ethnicity' ? lines.map ( (line, i)  => 
-            <path fill='none' stroke={line[1]} d={line[0]} strokeWidth="2.5" key={line}/> 
+          { showChart == 'ethnicity' ? lines.map ( line  => 
+            <path fill='none' stroke={line[1]} d={line[0]} strokeWidth="2.5" key={line[0]}/> 
           )  : 
            allLine && <path fill='none' stroke={allColor} d={allLine} strokeWidth="2.5" /> 
           }
@@ -184,7 +162,7 @@ function NameChart() {
 
         </svg>
 
-        <Legend colors={colorsState} allColor={allColor} showChart={showChart} setShowChart={setShowChart} handleChange={handleShowChartChange} />
+        <Legend colors={colorsState} showChart={showChart} setShowChart={setShowChart} handleChange={handleShowChartChange} />
     </div>
   )
 }
