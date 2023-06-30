@@ -44,19 +44,43 @@ app.get('/allData/:field/:pageNumber/:order/:gender', async (req, res) =>  {
 app.get('/names/:searchTerm', async (req, res) =>  { 
   const { searchTerm } = req.params;
   const names = await getByNames(searchTerm); 
+  
+  // Needs a route
+  await allDataJoined(searchTerm);
+
   res.json(names);
  
 });
 
 app.get('/name/:name', async (req, res) =>  { 
-  console.log('in route')
   const { name } = req.params;
   const names = await getSingleName(name); 
+  const ranks = await getByRank(name, 10);
+  
   res.json(names);
  
 });
 
+// Gets names for a certain rank and above
+app.get('/name/:name/:rank', async (req, res) => {
+  const { name, rank } = req.params;
+  const names = await getByRank(name, rank);
 
+  res.json(names);
+});
+
+app.get('/topTenMaleNames', async (req, res) => {
+  const data = await getTen('Male');
+
+  res.json(data);
+
+});
+
+app.get('/topTenFemaleNames', async (req, res) => {
+  const data = await getTen('Female');
+
+   res.json(data);
+});
 
 
 // connect to the database
@@ -67,6 +91,9 @@ async function run() {
       // Send a ping to confirm a successful connection
       await client.db("admin").command({ ping: 1 });
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
+
+      // await topTen('Male');
+      // await topTen('Female');
 
     } finally {
       // Ensures that the client will close when you finish/error
@@ -81,6 +108,37 @@ async function allData() {
 
   const data = await myColl.find().sort({[INITIALSORTFIELD]: 1, _id: 1}).limit(ROWSPERPAGE).toArray(); 
   return data;
+}
+
+// Aggregates all names within a certain year, regardless of race
+async function allDataJoined(name) {
+
+   const pipeline = [
+   {
+      '$match': {
+        'name': {
+          '$regex': new RegExp(`^${name}`, 'i')
+        }
+      }
+    },  
+   {
+    '$bucket': {
+        'groupBy': '$year',
+        'boundaries': [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019],
+        'default': 2019,
+        'output': {
+           "Total" : { '$count': {} },
+           "TotalNumber": { '$sum': '$number'},
+           "Name": { '$push': '$name'},
+           "Rank": {'$avg': {'$sum': '$rank'} }
+
+          }      
+      }      
+   } 
+]
+  const data = await myColl.aggregate(pipeline).toArray();
+
+  console.log(data);
 }
 
 async function allDataNum(field, page, order, gender) {
@@ -123,23 +181,17 @@ async function allDataNum(field, page, order, gender) {
       return data;
 }
 
-// Rank values within a threshold
-async function listByOrderedRank() {
+async function getByRank(name, rank) {
 
-  let category = "rank";
-  for(let x = 0; x < 100; x++) {
-  
-      const data = await myColl.find({ "rank": x}).toArray();
-      console.log(data);
-  }
-}
+  const findQuery = {name, 'rank': {$lte: rank}};
+  const options = { 
+    sort: {'rank': 1},
+  };
 
-// Rank top or lowest items
-async function listByRank() {
+  const data = await myColl.find(findQuery, options).toArray();
 
-   let x = 5;
-   const data = await myColl.find( {"rank":{$lt: x}}).toArray();
-   console.log(data);
+  console.log(data);
+  return data;
 
 }
 
@@ -173,10 +225,23 @@ async function getByNames (term) {
 
 }
 
+async function topTen(gender) {
+
+  const findQuery = {gender, 'rank': {$lte: 10}};
+  const options = { 
+    sort: {'rank': 1},
+  };
+
+  const data = await myColl.find(findQuery, options).toArray();
+
+  console.log(data);
+  return data;
+}
+
 async function getSingleName( name ) {
   const findQuery = {name}
-  console.log(findQuery)
+  // console.log(findQuery)
   const data = await myColl.find(findQuery).sort({"year": 1}).toArray();
-  console.log(data);
+ // console.log(data);
   return data;
 }
