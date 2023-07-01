@@ -43,6 +43,7 @@ function NameChart( { name } ) {
           fetch(`http://localhost:3000/name/${name}`).then(res => res.json()).then(json => {
             if (json) {
               setData(json);
+              console.log(json)
               clearSvg();
               const wData = filterByEthnicity(json, "White");
               const bData = filterByEthnicity(json, "Black");
@@ -104,6 +105,9 @@ function NameChart( { name } ) {
       return d3.line().x(d => x(d.year)).y(d => y(d.number));
     }
 
+    // function paintCircles() { I would like to be able to paint a circle at each point on the graph
+    //   return 
+    // }
 
     const handleCriteriaChange = (e) => { //efect runs when select menu option changes
       const value = e.target.value;
@@ -145,6 +149,7 @@ function NameChart( { name } ) {
       for (let key of Object.keys(combinedData)){
         combinedDataArr.push({year: key, number: combinedData[key]});
       }
+      console.log(combinedDataArr);
       return combinedDataArr;
     }
   
