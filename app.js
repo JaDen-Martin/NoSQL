@@ -44,9 +44,6 @@ app.get('/allData/:field/:pageNumber/:order/:gender', async (req, res) =>  {
 app.get('/names/:searchTerm', async (req, res) =>  { 
   const { searchTerm } = req.params;
   const names = await getByNames(searchTerm); 
-  
-  // Needs a route
-  await allDataJoined(searchTerm);
 
   res.json(names);
  
@@ -92,8 +89,8 @@ async function run() {
       await client.db("admin").command({ ping: 1 });
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-      // await topTen('Male');
-      // await topTen('Female');
+        // Needs a route
+      await allDataJoined();
 
     } finally {
       // Ensures that the client will close when you finish/error
@@ -111,30 +108,27 @@ async function allData() {
 }
 
 // Aggregates all names within a certain year, regardless of race
-async function allDataJoined(name) {
-
-   const pipeline = [
-   {
-      '$match': {
-        'name': {
-          '$regex': new RegExp(`^${name}`, 'i')
-        }
+async function allDataJoined() {
+   
+  const pipeline = [
+     {
+      '$group': {'_id': '$name', 
+                  'nameYear': {'$addToSet':
+                    {'$concat': ['$name', "-", {'$toString':'$year'  }, "-", {'$toString':'$number'}] } },// Filters out each unique name + year
       }
-    },  
-   {
-    '$bucket': {
-        'groupBy': '$year',
-        'boundaries': [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019],
-        'default': 2019,
-        'output': {
-           "Total" : { '$count': {} },
-           "TotalNumber": { '$sum': '$number'},
-           "Name": { '$push': '$name'},
-           "Rank": {'$avg': {'$sum': '$rank'} }
-
-          }      
-      }      
-   } 
+    },
+    {
+      '$unwind': '$nameYear'
+    },
+    {
+        '$addFields': { 
+            'year': { '$toInt': {'$arrayElemAt': [ { "$split": [ "$nameYear", "-"] }, 1 ]} },
+            'number': { '$toInt': {'$arrayElemAt': [ { "$split": [ "$nameYear", "-"] }, 2 ]} },
+        }
+    },
+  {
+    '$sort':{'_id': 1}
+  }
 ]
   const data = await myColl.aggregate(pipeline).toArray();
 
@@ -229,7 +223,7 @@ async function topTen(gender) {
 
   const findQuery = {gender, 'rank': {$lte: 10}};
   const options = { 
-    sort: {'rank': 1},
+    sort: {'number': 'desc'},
   };
 
   const data = await myColl.find(findQuery, options).toArray();
