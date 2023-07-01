@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { getByGrowthRate } = require('./Functions/function.js')
 const app = express();
 const uri = "mongodb+srv://Admin:nyjd-2023@nyjd.xa26v9a.mongodb.net/?retryWrites=true&w=majority";
 const ROWSPERPAGE = 500; // A global constant that stores the amount of documents to serve
@@ -79,6 +80,11 @@ app.get('/topTenFemaleNames', async (req, res) => {
    res.json(data);
 });
 
+app.get('/topTenGrowthRate', async (req, res) => {
+  const data = await getByGrowthRate(myColl);
+  res.json(data);
+});
+
 
 // connect to the database
 async function run() {
@@ -91,7 +97,6 @@ async function run() {
 
         // Needs a route
       await allDataJoined();
-
     } finally {
       // Ensures that the client will close when you finish/error
       // await client.close();
