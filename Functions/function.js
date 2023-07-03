@@ -154,8 +154,5 @@ async function topTen(gender, coll) {
 }
 
 module.exports = {
-    getByGrowthRate,
-    getByNames,
-    topTen
-    
+    getByGrowthRate, allData, allDataJoined, allDataNum, getSingleName, getByNames, getByRank, topTen
 }
