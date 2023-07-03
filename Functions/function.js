@@ -1,3 +1,6 @@
+const ROWSPERPAGE = 500; // A global constant that stores the amount of documents to serve
+const INITIALSORTFIELD = 'name'; //String to hold the sort criteria for initial queries
+ 
  async function getByGrowthRate(coll, low=false) {
 let sortInt = -1;
   if (low) {

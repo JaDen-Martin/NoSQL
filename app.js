@@ -6,16 +6,25 @@
 const express = require("express");
 const cors = require("cors");
 
-<<<<<<< HEAD
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const { getByGrowthRate, getByNames, topTen } = require('./Functions/function.js')
-=======
 const { allData, getByGrowthRate, allDataJoined, allDataNum, getByNames, getByRank, getSingleName, topTen } = require('./Functions/function.js');
->>>>>>> ff5b02a34baa90d21bf88fbdf320054ba8c5e055
 const app = express();
-
+const uri = "mongodb+srv://Admin:nyjd-2023@nyjd.xa26v9a.mongodb.net/?retryWrites=true&w=majority";
 app.use(cors());
+
 app.listen(3000, () => console.log("Server is running"));
+
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+const myDB = client.db("NoSql");
+const myColl = myDB.collection("baby_names");
 
 app.get('/', (req, res) => {
   res.send('root'); 
@@ -37,14 +46,9 @@ app.get('/allData/:field/:pageNumber/:order/:gender', async (req, res) =>  {
 
 app.get('/names/:searchTerm', async (req, res) =>  { 
   const { searchTerm } = req.params;
-<<<<<<< HEAD
   const names = await getByNames(searchTerm, myColl); 
   // Needs a route
   // await allDataJoined(searchTerm);
-=======
-  const names = await getByNames(searchTerm); 
-
->>>>>>> ff5b02a34baa90d21bf88fbdf320054ba8c5e055
   res.json(names);
  
 });
@@ -78,7 +82,6 @@ app.get('/topTenFemaleNames', async (req, res) => {
 app.get('/topTenGrowthRate', async (req, res) => {
   const data = await getByGrowthRate(myColl);
   res.json(data);
-<<<<<<< HEAD
 });
 
 app.get('/botTenGrowthRate', async (req, res) => {
@@ -206,6 +209,3 @@ async function getSingleName( name ) {
  // console.log(data);
   return data;
 }
-=======
-});
->>>>>>> ff5b02a34baa90d21bf88fbdf320054ba8c5e055
