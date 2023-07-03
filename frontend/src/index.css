@@ -26,6 +26,11 @@
   left: 0;
   top: 1rem;
   width: 100vw;
+  align-items: center;
+}
+
+.home-icon {
+  height: 35px;
 }
 a {
   font-weight: 500;

@@ -26,7 +26,7 @@ function Names() {
   const svgRef = useRef();
   const navigate = useNavigate();
 
-  function setUpChart(htmlNode = svgRef.current) {
+  function setUpChart() {
     const svg = d3.select(svgRef.current).attr('width', width).attr('height', height)
     .style('background' , '#f9f9f9').style('margin-top', margin.top).style('overflow', 'visible');
     svg.append('text').attr("class", "axis-label").attr('text-anchor', 'middle').attr('x', width / 2

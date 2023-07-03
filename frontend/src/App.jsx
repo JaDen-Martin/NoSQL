@@ -6,6 +6,7 @@ import Names from '../components/Names'
 
 import About from '../components/About'
 import './App.css'
+import ScatterPlot from '../components/ScatterPlot'
 
 
 function App() {
@@ -19,7 +20,7 @@ function App() {
           <Route path='/' element={<DataTable />} />
           <Route path='/name/:name' element={ <Names / > } />
           <Route path='/about' element={ <About / > } />
-
+          <Route path='/scatter' element={ <ScatterPlot / > } />
           <Route path='/*' element={<DataTable />} /> 
        </ Routes>
        </BrowserRouter>

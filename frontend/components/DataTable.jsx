@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {Table, TableRow, TableBody, TableCell, TableContainer, TableHead, Paper } from '@mui/material'
 import { useNavigate } from 'react-router-dom';
-import './table.css'
+import '../chartStyles/table.css'
 import GenderSelector from './GenderSelector';
 import SearchBar from './SearchBar';
 
