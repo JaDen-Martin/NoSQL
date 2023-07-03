@@ -22,6 +22,7 @@ function GenderSelector({gender="a", setSortBy}) {
         >
             All
         </div>
+        <div className='mOrF'>
         <div  style={ gender == 'm' ? selectedStyle : unSelectedStyle }
           onClick={e => handleSetGender(e, 'm')}
         >Male</div>
@@ -29,6 +30,7 @@ function GenderSelector({gender="a", setSortBy}) {
         <div  style={ gender == 'f' ? selectedStyle : unSelectedStyle }
           onClick={e => handleSetGender(e, 'f')}
         >Female</div>
+        </div>
     </div>
   )
 }

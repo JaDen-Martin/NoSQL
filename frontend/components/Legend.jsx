@@ -1,43 +1,45 @@
 import { Select, FormControl, InputLabel, MenuItem } from '@mui/material'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
-function Legend( {colors, allColor='#32CD32', chartCriteria='ethnicity', handleChange } ) {
-    const size = '20px';
 
-  return (
-   
+function Legend( { options, values, chartCriteria='', handleChange } ) 
+{ 
+  const size = '20px';
+  
+  return ( 
     <div className='legend'>
-         <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-         <InputLabel id="select-label">Showing by...</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+          <InputLabel id="select-label">Showing by...</InputLabel>
         <Select 
         id="select"
         onChange={handleChange}
-        value={chartCriteria} 
-        label="chart criteria"
-        > 
-        <MenuItem value='ethnicity' >ethnicity</MenuItem>
-        <MenuItem value='all' >all</MenuItem>
+        value={options.length ? chartCriteria : ''} 
+        label="chartCriteria"
+          > 
+        {
+          options?.map( option => 
+            <MenuItem value={option.field} key={option.field}>{option.text}</MenuItem>
+          )
+        }
+
         </ Select>
         </FormControl>
         <div className='items-cont'>
         {
-           chartCriteria == 'ethnicity' ? colors.map( color => {
+          values.map( val => {
                 return (
-                    <div key={color.color} className='legend-item'>
-                        <span style={{backgroundColor: color.color, height: size, width: size}}>
+                    <div key={val.color} className='legend-item'>
+                        <span style={{backgroundColor: val.color, height: size, width: size}}>
                         </span>
-                        <span>{color.ethnicity}</span>
+                        <span>{val.text}</span>
+                        {val?.info && <span>{val.info}</span>}
                     </div>
                 )
-            }) :
-            <div className='legend-item'>
-            <span style={{backgroundColor: allColor, height: size, width: size}}>
-            </span>
-            <span>All</span>
-        </div>
+            }) 
 
         }
         </div>
+      
     </div>
   )
 }

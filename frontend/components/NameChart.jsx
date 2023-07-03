@@ -8,86 +8,133 @@ const height = 600;
 const margin = { top: 5, right: 20, bottom: 20, left: 20 };
 const lineColors = {White:'#F51720', Black:'#2FF3E0', Asian:'#F8D210', Hispanic:'#FA26A0'}
 const allColor = '#32CD32'
+const topTenColors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#FFA500", "#800080", "#008000", "#FFC0CB" ];
+const years = [{year: 2011}, {year: 2012}, {year: 2013}, {year: 2014}, {year: 2015}, {year: 2016}, {year: 2017}, {year: 2018}, {year: 2019} ]
 
 function filterByEthnicity(data, ethnicity) {
   return data.filter( item => item.ethnicity == ethnicity).sort( (a,b) => a.year - b.year)
 }
 
 
-function NameChart( { name } ) {
-    const [data, setData ] = useState([]);
+function NameChart( { chartData, svg, chartCriteria, setLegendValues} ) {
+
     const [lines, setLines] = useState([]);
-    const [allLine, setAllLine ] = useState('');
-    const [chartCriteria, setChartCriteria] = useState('ethnicity') //this will be either the string ethnicity or all and shows which version of the chart to display
-    const [colorsState, setColorsState] = useState([]);
-    const svgRef = useRef();
 
-    function setUpChart(htmlNode = svgRef.current) {
-      const svg = d3.select(htmlNode).attr('width', width).attr('height', height)
-      .style('background' , '#f9f9f9').style('margin-top', margin.top).style('overflow', 'visible');
-      svg.append('text').attr("class", "axis-label").attr('text-anchor', 'middle').attr('x', width / 2
-      ).attr('y', height + 55).attr('stroke', 'rgba(255, 255, 255)').attr('font-weight', 100).attr("letter-spacing", 2).text('Year');
+  function generateCircles(arr, color, x, y, className){
+    const circles = d3.select(svg)
+    .selectAll(`.${className}`) 
+    .data(arr)
+    .join('circle')
+    .attr('class', className)
+    .attr('cx', d => x(d.year))
+    .attr('cy', d => y(d.number))
+    .attr('r', 4)
+    .attr('fill', color);
 
-      svg.append('text').attr("class", "axis-label").attr('text-anchor', 'end').attr('x', -(height /2)).attr('y', -50).attr('stroke', 'rgba(255, 255, 255)').attr("letter-spacing", 2).attr("transform", "rotate(-90)").attr('font-weight', 100).text('Number');
-    }
+    circles.append('title') // Add title elements to circles
+    .text(d => `Year: ${d.year}, Number: ${d.number}`);
+    // Add tooltip behavior
+    circles.on('mouseover', function (event, d) {
+    d3.select(this)
+      .attr('r', 8); // Increase circle radius on mouseover
+      
+    // Show tooltip
+    const tooltip = d3.select('.tooltip');
     
+    tooltip.style('display', 'block')
+      .style('left', `${event.pageX}px`)
+      .style('top', `${event.pageY}px`)
+      .text(`Year: ${d.year}, Number: ${d.number}`);
+  }).on('mouseout', function () {
+    d3.select(this)
+      .attr('r', 4); // Reset circle radius on mouseout
+
+    // Hide tooltip
+    d3.select('#tooltip')
+      .style('display', 'none');
+  });
+}
+
     useEffect(()=> {
-      setUpChart(svgRef.current);
-    }, [])
+      let d3Svg = d3.select(svg.current);
+      if (!chartData.length ) return;
+      clearSvg();
+
+      if (chartCriteria == 'ethnicity'){
+
+        const wData = filterByEthnicity(chartData, "White");
+        const bData = filterByEthnicity(chartData, "Black");
+        const aData = filterByEthnicity(chartData, "Asian");
+        const hData = filterByEthnicity(chartData, "Hispanic");
+        
+        const numsInData = chartData.map(d => d.number);
+        const max = Math.max(...numsInData);
+        const {xScale, yScale} = paintAxis(chartData, max);
  
-    useEffect( ()=> { //fetching effect runs on initial load, and evertime name changes
-
-        setChartCriteria('ethnicity'); //set to default chart on name change
-
-        if (name !== 'search'){
-          fetch(`http://localhost:3000/name/${name}`).then(res => res.json()).then(json => {
-            if (json) {
-              setData(json);
-              console.log(json)
-              clearSvg();
-              const wData = filterByEthnicity(json, "White");
-              const bData = filterByEthnicity(json, "Black");
-              const aData = filterByEthnicity(json, "Asian");
-              const hData = filterByEthnicity(json, "Hispanic");
-           
-              const numsInData = json.map(d => d.number);
-              const max = Math.max(...numsInData);
-           
-              const {xScale, yScale} = paintAxis(json, max);
-              const lineGenerator = paintChart(xScale, yScale);
-              const linesArray = []; //the svg paths will be calculated and added to this array
-              const newColorsState = []; //push only the colors that are in the data 
-
-              function generateLineAndColors(arr, ethnicity){
-                if (arr.length > 0) {
-                  const line = lineGenerator(arr);
-                  linesArray.push([line, lineColors[ethnicity]]);
-                  newColorsState.push({ethnicity, color: lineColors[ethnicity]});
-                }
-                
-              }
-
-              generateLineAndColors(wData, 'White');
-              generateLineAndColors(bData, 'Black');
-              generateLineAndColors(aData, 'Asian');
-              generateLineAndColors(hData, 'Hispanic');
-              setColorsState(newColorsState);
-              setLines(linesArray); 
-              
-            }
-          })
-        } else { // if name is search and we can show another chart
-
+        const lineGenerator = paintChart(xScale, yScale);
+        const linesArray = [];
+        const legendOptionsArr = [];
+      
+        
+        function generateLineAndColors(arr, ethnicity, i){
+          if (arr.length > 0) {
+            const line = lineGenerator(arr);
+            linesArray.push({line, color: lineColors[ethnicity]});
+            legendOptionsArr.push({text: ethnicity, color: lineColors[ethnicity]});
+            generateCircles(arr, lineColors[ethnicity], xScale, yScale, `circle${i}`);
         }
-       
-    }, [name]);
+      }
+        generateLineAndColors(wData, 'White', 1);
+        generateLineAndColors(bData, 'Black', 2);
+        generateLineAndColors(aData, 'Asian'), 3;
+        generateLineAndColors(hData, 'Hispanic', 4);
+  
+        setLines(linesArray)
+        setLegendValues(legendOptionsArr);
+  
+      } else if (chartCriteria == 'all') {
+        const combinedVals = combineData(chartData);
+        const numbers = combinedVals.map(item => item.number);
+        const max = Math.max(...numbers);
+        const {xScale, yScale} = paintAxis(combinedVals, max);
+        const lineGenerator  = paintChart(xScale, yScale);
+        const newAllLine = lineGenerator(combinedVals);
+        const newState = [{line: newAllLine, color: allColor}];
+        setLines(newState);
+        setLegendValues([{text: 'all', color: allColor}]);
+        generateCircles(combinedVals, allColor, xScale, yScale, 'circle')
+
+      } else {  //criteria is any of the top names stats in the overview tab
+        const numbers = [];
+        chartData.map( entry => {
+          let name = entry._id;
+          entry.yearsCombined.map( entry => {
+            numbers.push(entry.number)
+          } )
+        });
+        const maxNum = Math.max(...numbers);
+        const {xScale, yScale} = paintAxis(years, maxNum);
+        const linesArr = [];
+        const lineGenerator = paintChart(xScale, yScale);
+  
+        chartData.forEach( (item, i) => {
+          const line = lineGenerator(item.yearsCombined);
+          linesArr.push({line, color: topTenColors[i]}); 
+          generateCircles(item.yearsCombined, topTenColors[i], xScale, yScale, `circle${i}`)
+            
+        })
+        
+        setLines(linesArr);
+      }
+    }, [chartCriteria])
+   
 
     function clearSvg() {
-      d3.selectAll('svg g').remove();
+      d3.selectAll('svg g,circle').remove();
     }
 
     function paintAxis (dataArr, maxYVal) {
-      const svg = d3.select(svgRef.current);
+      const d3Svg = d3.select(svg);
       const xScale = d3.scaleLinear().domain(d3.extent(dataArr.map(item => item.year))).range([0, width]);
 
       const yScale = d3.scaleLinear().domain([0, (maxYVal + 20) ]).range([height, 0]);
@@ -96,8 +143,8 @@ function NameChart( { name } ) {
    
       const yAxis = d3.axisLeft(yScale).tickSize([-(width)]);
       
-      svg.append('g').call(xAxis).attr('transform', `translate(0, ${height + margin.top + 5})`);
-      svg.append('g').call(yAxis).attr('transform', `translate(0, 0)`);
+      d3Svg.append('g').call(xAxis).attr('transform', `translate(0, ${height + margin.top + 5})`);
+      d3Svg.append('g').call(yAxis).attr('transform', `translate(0, 0)`);
       return { xScale, yScale };
     }
 
@@ -108,32 +155,7 @@ function NameChart( { name } ) {
     // function paintCircles() { I would like to be able to paint a circle at each point on the graph
     //   return 
     // }
-
-    const handleCriteriaChange = (e) => { //efect runs when select menu option changes
-      const value = e.target.value;
-      if(!data.length || !lines.length) return;
-      clearSvg();
-      setChartCriteria(value);
-
-      if (value == 'all'){
-          const combinedVals = combineData(data);
-          const numbers = combinedVals.map(item => item.number);
-          const max = Math.max(...numbers);
-          const {xScale, yScale} = paintAxis(combinedVals, max);
-          const lineGenerator  = paintChart(xScale, yScale);
-          const newAllLine = lineGenerator(combinedVals);
-          setAllLine(newAllLine);
-        
-      }  else { //value is ethnicity and we can paint the lines for ethnicity 
-        const numsInData = data.map(d => d.number);
-        const max = Math.max(...numsInData);
-        const {xScale, yScale} = paintAxis(data, max);
-        paintChart(xScale, yScale);
-        }
     
-      }
-    
-
     function combineData(arr) {
 
       const combinedData = {};
@@ -155,21 +177,14 @@ function NameChart( { name } ) {
   
   
   return (
-    <div className='line-chart'>
-        <svg ref={svgRef} width={width} height={height}>
-        
-          { 
-          chartCriteria == 'ethnicity' ? lines.map ( line  => 
-            <path fill='none' stroke={line[1]} d={line[0]} strokeWidth="2.5" key={line[0]}/> 
-          )  : 
-           allLine && <path fill='none' stroke={allColor} d={allLine} strokeWidth="2.5" /> 
-          }
-
-
-        </svg>
-
-        <Legend colors={colorsState} chartCriteria={chartCriteria} handleChange={handleCriteriaChange} />
-    </div>
+    
+    <>
+      { 
+        lines?.map ( line  => 
+        <path fill='none' stroke={line.color} d={line.line} strokeWidth="2.5" key={line.line}/> 
+      )}
+      <div className="tooltip"></div>
+  </>
   )
 }
 

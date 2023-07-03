@@ -1,4 +1,9 @@
- async function getByGrowthRate(coll) {
+ async function getByGrowthRate(coll, low=false) {
+let sortInt = -1;
+  if (low) {
+    sortInt = 1;
+  }
+
     const pipeline = 
     [
         {
@@ -55,7 +60,7 @@
           }
         }, {
           '$sort': {
-            'growthRate': -1
+            'growthRate': sortInt
           }
         }, {
           '$limit': 10
@@ -66,6 +71,91 @@
       return data;
 }
 
+// Do a search for names that start with the term
+async function getByNames (term, coll) { 
+
+  const pipeline = [ 
+    {
+      '$match': {
+        'name': {
+          '$regex': new RegExp(`^${term}`, 'i')
+        }
+      }
+    }, 
+    {
+      '$group': {
+        '_id': '$name'
+      } 
+    },{
+      '$sort': { '_id': 1 }
+
+    }
+    , {
+      '$limit': 5
+    }
+  ]
+
+  const names = await coll.aggregate(pipeline).toArray();
+
+  return names;
+
+}
+
+async function topTen(gender, coll) {
+
+  const pipeline = [
+    {
+      '$match': {
+        'gender': gender
+      }
+    }, {
+      '$group': {
+        '_id': {
+          'name': '$name', 
+          'year': '$year'
+        }, 
+        'number': {
+          '$sum': '$number'
+        }
+      }
+    },{
+      '$sort': {
+        '_id.year': 1
+      }
+    }, {
+      '$group': {
+        '_id': '$_id.name', 
+        'yearsCombined': {
+          '$push': {
+            'year': '$_id.year', 
+            'number': '$number'
+          }
+        }
+      }
+    }, {
+      '$addFields': {
+        'averageNumber': {
+          '$avg': '$yearsCombined.number'
+        }
+      }
+    }, {
+      '$sort': {
+        'averageNumber': -1
+      }
+    },
+    {
+      '$limit': 10
+    }
+  ]
+
+  const data = await coll.aggregate(pipeline).toArray();
+  
+  return data;
+}
+
 module.exports = {
-    getByGrowthRate
+    getByGrowthRate,
+    getByNames,
+    topTen
+    
 }

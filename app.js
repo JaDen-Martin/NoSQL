@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const { getByGrowthRate } = require('./Functions/function.js')
+const { getByGrowthRate, getByNames, topTen } = require('./Functions/function.js')
 const app = express();
 const uri = "mongodb+srv://Admin:nyjd-2023@nyjd.xa26v9a.mongodb.net/?retryWrites=true&w=majority";
 const ROWSPERPAGE = 500; // A global constant that stores the amount of documents to serve
@@ -44,11 +44,9 @@ app.get('/allData/:field/:pageNumber/:order/:gender', async (req, res) =>  {
 
 app.get('/names/:searchTerm', async (req, res) =>  { 
   const { searchTerm } = req.params;
-  const names = await getByNames(searchTerm); 
-  
+  const names = await getByNames(searchTerm, myColl); 
   // Needs a route
-  await allDataJoined(searchTerm);
-
+  // await allDataJoined(searchTerm);
   res.json(names);
  
 });
@@ -56,8 +54,7 @@ app.get('/names/:searchTerm', async (req, res) =>  {
 app.get('/name/:name', async (req, res) =>  { 
   const { name } = req.params;
   const names = await getSingleName(name); 
-  const ranks = await getByRank(name, 10);
-  
+  // const ranks = await getByRank(name, 10);
   res.json(names);
  
 });
@@ -71,15 +68,12 @@ app.get('/name/:name/:rank', async (req, res) => {
 });
 
 app.get('/topTenMaleNames', async (req, res) => {
-  const data = await getTen('Male');
-
+  const data = await topTen('Male', myColl);
   res.json(data);
-
 });
 
 app.get('/topTenFemaleNames', async (req, res) => {
-  const data = await getTen('Female');
-
+  const data = await topTen('Female', myColl);
    res.json(data);
 });
 
@@ -87,6 +81,13 @@ app.get('/topTenGrowthRate', async (req, res) => {
   const data = await getByGrowthRate(myColl);
   res.json(data);
 });
+
+app.get('/botTenGrowthRate', async (req, res) => {
+  const data = await getByGrowthRate(myColl, low = true);
+  res.json(data);
+});
+
+
 
 
 // connect to the database
@@ -198,48 +199,6 @@ async function getByRank(name, rank) {
 
 }
 
-// Do a search for names that start with the term
-async function getByNames (term) { 
-
-  const pipeline = [ 
-    {
-      '$match': {
-        'name': {
-          '$regex': new RegExp(`^${term}`, 'i')
-        }
-      }
-    }, 
-    {
-      '$group': {
-        '_id': '$name'
-      } 
-    },{
-      '$sort': { '_id': 1 }
-
-    }
-    , {
-      '$limit': 5
-    }
-  ]
-
-  const names = await myColl.aggregate(pipeline).toArray();
-
-  return names;
-
-}
-
-async function topTen(gender) {
-
-  const findQuery = {gender, 'rank': {$lte: 10}};
-  const options = { 
-    sort: {'rank': 1},
-  };
-
-  const data = await myColl.find(findQuery, options).toArray();
-
-  console.log(data);
-  return data;
-}
 
 async function getSingleName( name ) {
   const findQuery = {name}

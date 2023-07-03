@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
 import useComponentVisible from './useComponentVisible';
 
@@ -7,6 +7,7 @@ function SearchBar() {
     const [results, setResults] = useState([])
     const navigate = useNavigate();
     const { ref, isComponentVisible, setIsComponentVisible } = useComponentVisible(true);
+    const inputRef = useRef();
 
     const inputChanged = e => {
         const input = e.target.value;
@@ -42,6 +43,7 @@ function SearchBar() {
         if (name.startsWith('0')){
             return;
         }
+        inputRef.current.value = '';
         setIsComponentVisible(false);
         navigate(`/name/${name}`);
     }
@@ -54,7 +56,7 @@ function SearchBar() {
    
   return (
     <div className='search-cont'>
-       <input type='search' spellCheck="false" onChange={inputChanged} placeholder='SEARCH NAME' onClick={handleClick}></input>
+       <input type='search' spellCheck="false" onChange={inputChanged} placeholder='SEARCH NAME' onClick={handleClick} ref={inputRef} ></input>
        {isComponentVisible && results.length > 0 &&
        <ul className='search-res' ref={ref} >  
         { 
