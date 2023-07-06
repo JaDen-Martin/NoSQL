@@ -77,6 +77,7 @@ function ScatterPlot() {
     function getDataInPages(xScale, yScale){
       let page = 0;
       setChartData([]);
+      let circleSize = d3.scaleSqrt().domain([0,HIGHESTNUMBER]).range([0, 8]);
       const id = setInterval(()=> {
         if (page < 36) { // the number of pages needed to get all the data
           const url = `http://localhost:3000/allData/year/${page}/asc/all`;
@@ -86,15 +87,13 @@ function ScatterPlot() {
             page++;
             if (data.length) {
               console.log(page)
-              generateCircles(data, xScale, yScale, `circle${page}`);
+              generateCircles(data, xScale, yScale, `circle${page}`, circleSize);
           
             } else {
-              console.log('no data')
               clearInterval(id);
             }
           }).catch(err => {if(err) clearInterval(id);   console.log(err) });
         } else {
-          console.log('err2')
           clearInterval(id)
         }
    
@@ -103,7 +102,7 @@ function ScatterPlot() {
       return id;
     }
 
-    function generateCircles(arr, x, y, className) {
+    function generateCircles(arr, x, y, className, size) {
       const collWidth = +scatterRef.current.clientWidth / 9;
 
       const circles = d3.select(scatterRef.current)
@@ -113,24 +112,24 @@ function ScatterPlot() {
       .attr('class', className)
       .attr('cx', d => x(d.year) + randomIntFromInterval(0, collWidth))
       .attr('cy', d => y(d.number))
-      .attr('r', 4)
+      .attr('r', d => size(d.number))
       .attr('fill', (d, i) => ethColors[d.ethnicity]);
     };
 
     function handleResize() {
       if (widthRef.current && scatterRef.current.clientWidth != widthRef.current){
+        d3.selectAll('svg *').remove();
         clearInterval(intervalIdRef.current);
         clearTimeout(debounceId.current)
         let debounce;
         // console.log('handling resize')
         widthRef.current = scatterRef.current.clientWidth;
-        debounce = setTimeout(paintNewChart(), 1250);
+        debounce = setTimeout(paintNewChart(), 800);
         debounceId.current = debounce;
       }
     }
 
     function paintNewChart() {
-      d3.selectAll('svg *').remove();
       setUpChart(scatterRef);
       const{ xScale, yScale } = paintAxis( HIGHESTNUMBER, scatterRef);
         const id = getDataInPages(xScale, yScale);
