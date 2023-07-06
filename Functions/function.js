@@ -255,7 +255,14 @@ async function allDataNum(field, page, order, gender, coll) {
         findQuery['gender'] = 'Female';
       }
 
+      if (field == 'year') {
+        sortQuery['_id'] = -1;
+      }
+
       data = await coll.find(findQuery).sort(sortQuery).limit(ROWSPERPAGE).skip(skip).toArray();
+      
+      if (page ==0)  console.log(data)
+    
       return data;
 }
 

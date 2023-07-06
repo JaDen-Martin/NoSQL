@@ -1,6 +1,7 @@
 .scatter-cont {
     /* background-color: aqua; */
-    width: 100vw;
+    box-sizing: border-box;
+    width: 90vw;
     padding: 2rem;
     display: flex;
     justify-content: center;

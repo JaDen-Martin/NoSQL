@@ -137,7 +137,7 @@ function NameChart( { chartData, svg, chartCriteria, setLegendValues} ) {
       const d3Svg = d3.select(svg);
       const xScale = d3.scaleLinear().domain(d3.extent(dataArr.map(item => item.year))).range([0, width]);
 
-      const yScale = d3.scaleLinear().domain([0, (maxYVal + 20) ]).range([height, 0]);
+      const yScale = d3.scaleSqrt().domain([0, (maxYVal + 20) ]).range([height, 0]);
     
       const xAxis = d3.axisBottom(xScale).tickSize([-(height + margin.top)]).tickFormat(d3.format("d"));
    

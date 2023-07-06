@@ -11,8 +11,6 @@ import LineChartDescription from './LineChartDescription';
 const width = 720;
 const height = 600;
 const margin = { top: 5, right: 20, bottom: 20, left: 20 };
-const lineColors = {White:'#F51720', Black:'#2FF3E0', Asian:'#F8D210', Hispanic:'#FA26A0'}
-const allColor = '#32CD32'
 const topTenColors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#FFA500", "#800080", "#008000", "#FFC0CB" ];
 const nameOptions = [{field: 'ethnicity', text: 'ethnicity'}, {field: 'all', text: 'all'} ];
 const topOptions = [{field: 'topGrowthRate', text: 'Top Growth Rate'}, {field: 'botGrowthRate', text: 'Lowest Growth Rate' }, {field: 'topMale', text: 'Most Popular Male'}, {field: 'topFemale', text: 'Most Popular Female' }];
