@@ -136,6 +136,11 @@ button:focus-visible {
 }
 .chart-cont {
   padding: 1rem;
+
+}
+
+.chart-cont * {
+  overflow: visible;
 }
 /* styles for line chart */
 @media screen and (min-width: 1365px) {
