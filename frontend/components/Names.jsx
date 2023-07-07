@@ -38,8 +38,11 @@ function Names() {
   }
 
   useEffect(()=> {
-    setUpChart(svgRef.current);
-  }, [])
+    if (svgRef.current){
+      setUpChart(svgRef.current);
+    }
+   
+  }, [svgRef])
 
   useEffect( ()=> {
     if (name ==='search'){  

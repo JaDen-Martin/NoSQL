@@ -52,7 +52,7 @@ function ScatterPlot() {
   
       const chartWidth = +ref.current.clientWidth;
       svg.append('text').attr("class", "axis-label").attr('text-anchor', 'middle').attr('x', chartWidth / 2
-      ).attr('y', -10).attr('stroke', 'rgba(255, 255, 255)').attr('font-weight', height/4).attr("letter-spacing", 2).text('Year');
+      ).attr('y', -10).attr('stroke', 'rgba(255, 255, 255)').attr('font-weight', 100).attr("letter-spacing", 2).text('Year');
   
       svg.append('text').attr("class", "axis-label").attr('text-anchor', 'end').attr('x', -200).attr('y', -40).attr('stroke', 'rgba(255, 255, 255)').attr("letter-spacing", 2).attr("transform", "rotate(-90)").attr('font-weight', 100).text('Number');
     }

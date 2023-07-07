@@ -145,6 +145,10 @@ function NameChart( { chartData, svg, chartCriteria, setLegendValues} ) {
       
       d3Svg.append('g').call(xAxis).attr('transform', `translate(0, ${height + margin.top + 5})`);
       d3Svg.append('g').call(yAxis).attr('transform', `translate(0, 0)`);
+      d3Svg.append('text').attr("class", "axis-label").attr('text-anchor', 'middle').attr('x', width / 2
+      ).attr('y', height + 55).attr('stroke', 'rgba(255, 255, 255)').attr('font-weight', 100).attr("letter-spacing", 2).text('Year');
+  
+      d3Svg.append('text').attr("class", "axis-label").attr('text-anchor', 'end').attr('x', -(height /2)).attr('y', -50).attr('stroke', 'rgba(255, 255, 255)').attr("letter-spacing", 2).attr("transform", "rotate(-90)").attr('font-weight', 100).text('Number');
       return { xScale, yScale };
     }
 
