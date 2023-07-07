@@ -27,10 +27,6 @@ function Names() {
   function setUpChart() {
     const svg = d3.select(svgRef.current).attr('width', width).attr('height', height)
     .style('background' , '#f9f9f9').style('margin-top', margin.top).style('overflow', 'visible');
-    svg.append('text').attr("class", "axis-label").attr('text-anchor', 'middle').attr('x', width / 2
-    ).attr('y', height + 55).attr('stroke', 'rgba(255, 255, 255)').attr('font-weight', 100).attr("letter-spacing", 2).text('Year');
-
-    svg.append('text').attr("class", "axis-label").attr('text-anchor', 'end').attr('x', -(height /2)).attr('y', -50).attr('stroke', 'rgba(255, 255, 255)').attr("letter-spacing", 2).attr("transform", "rotate(-90)").attr('font-weight', 100).text('Number');
   }
 
   function getLegendPercentValues (data) {

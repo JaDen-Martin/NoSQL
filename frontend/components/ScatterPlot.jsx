@@ -15,7 +15,7 @@ function ScatterPlot() {
 
 
     
-    const [chartData, setChartData] = useState([]);
+    // const [chartData, setChartData] = useState([]);
     const scatterRef = useRef();
     const widthRef = useRef(scatterRef.current ? scatterRef.current.clientWidth : 0);
 
@@ -82,8 +82,8 @@ function ScatterPlot() {
         if (page < 36) { // the number of pages needed to get all the data
           const url = `http://localhost:3000/allData/year/${page}/asc/all`;
           fetchData(url).then((data)=>{
-            const newState = [...chartData, ...data];
-            setChartData(newState);
+            // const newState = [...chartData, ...data];
+            // setChartData(newState);
             page++;
             if (data.length) {
               console.log(page)
